@@ -1,6 +1,6 @@
 ﻿namespace HLSMP.Models
 {
-    public class User_cs
+    public class User
     {
 
     }
