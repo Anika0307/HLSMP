@@ -1,0 +1,191 @@
+﻿@using HLSMP
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "District Login";
+}
+<style>
+    .fade {
+        transition: opacity 0.5s ease-out;
+    }
+</style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+
+<div class="container d-flex justify-content-center align-items-center mt-5">
+    <div class="card shadow" style="max-width: 400px; width: 100%; border:none;">
+        <div class="header_1"><h6 class="mb-0">Login</h6></div>
+        <div class="card-body text-center">
+            @* <img src="~/images/haryana-emblem.png" alt="Logo" style="height: 80px;" class="mb-3" /> *@
+            <h4 class="mb-4"></h4>
+            @*   <form asp-action="Login" method="post"> *@
+            <form asp-action="Login" method="post" id="loginForm" onsubmit="return validateForm();">
+
+                <div class="mb-3 text-start">
+                    <label for="District" class="form-label">District</label>
+                    <select id="District" name="District" class="form-select">
+                        <option value="">-- Select District --</option>
+                        @foreach (var dist in ViewBag.Districts)
+                        {
+                            <option value="@dist">@dist</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label for="Email" class="form-label">User Name:</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="UserName" name="Email" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-3 text-start">
+                    <label for="Password" class="form-label">Password:</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" name="Password" class="form-control" />
+                        <i class="toggle-password fa fa-fw fa-eye-slash"></i>
+                    </div>
+                </div>
+
+                <div class="mb-3 text-start" id="captcha-container">
+                    <label class="form-label d-flex align-items-center">
+                        <span id="captchaText" class="me-2">Captcha: @Model.GeneratedCaptcha</span>
+                        <i class="fa-solid fa-rotate-right ms-2" style="cursor:pointer;" onclick="refreshCaptcha()" title="Refresh Captcha"></i>
+                    </label>
+                </div>
+                <div class="mb-3 text-start">
+                    <label for="CaptchaCode" class="form-label">Enter Captcha:</label>
+                    <div class="input-group">
+
+                        <input type="text" id="Captcha" name="CaptchaCode" class="form-control" maxlength="5"
+                               pattern="^[a-zA-Z0-9]*$" title="Captcha must only contain letters and numbers." autocomplete="off"
+                               oninput="validateCaptcha()" />
+                    </div>
+                </div>
+
+                @if (ViewData.ModelState.ContainsKey("") && ViewData.ModelState[""].Errors.Count > 0)
+                {
+                    <div id="errorAlert" class="alert alert-danger text-start fade show" role="alert">
+                        @ViewData.ModelState[""].Errors[0].ErrorMessage
+                    </div>
+                }
+
+                <button type="submit" class="btn btn-primary  w-100 text-white fw-bold">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+
+    <script>
+        $(".toggle-password").click(function () {
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            input = $(this).parent().find("input");
+            if (input.attr("type") == "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+        });
+
+
+        setTimeout(function () {
+            var msg = document.getElementById("messageBox");
+            var err = document.getElementById("errorBox");
+            var alertBox = document.getElementById("errorAlert");
+
+            if (msg) {
+                msg.classList.remove("show");
+                msg.classList.add("fade");
+            }
+
+            if (err) {
+                err.classList.remove("show");
+                err.classList.add("fade");
+            }
+
+            var alertBox = document.getElementById("errorAlert");
+            if (alertBox) {
+                alertBox.classList.add("fade");
+                alertBox.style.opacity = "0";
+                setTimeout(() => alertBox.style.display = "none", 500);
+            }
+        }, 3000);
+    </script>
+
+    <script>
+
+        function validateForm() {
+            var district = document.getElementById("District").value.trim();
+            var email = document.getElementById("UserName").value.trim();
+            var password = document.getElementById("password").value.trim();
+            var captcha = document.getElementById("Captcha").value.trim();
+
+            if (district === "") {
+                alert("Please select a District.");
+                return false;
+            }
+
+            if (email === "") {
+                alert("Please enter your User Name.");
+                return false;
+            }
+
+            if (password === "") {
+                alert("Please enter your Password.");
+                return false;
+            }
+
+            if (captcha === "") {
+                alert("Please enter the Captcha.");
+                return false;
+            }
+
+            return true; // allow form submission
+        }
+
+        function refreshCaptcha() {
+            fetch('/DistrictLogin/RefreshCaptcha')
+                .then(response => response.text())
+                .then(newCaptcha => {
+                    document.getElementById("captchaText").textContent = "Captcha: " + newCaptcha;
+                })
+                .catch(error => {
+                    console.error('Error refreshing captcha:', error);
+                    document.getElementById("captchaText").textContent = "Error loading captcha";
+                });
+        }
+        function validateCaptcha() {
+            var captchaInput = document.getElementById("Captcha");
+            var value = captchaInput.value;
+
+            var regex = /^[a-zA-Z0-9]*$/;
+
+            if (value.length > 5) {
+                captchaInput.value = value.substring(0, 5);
+            }
+
+            if (!regex.test(value)) {
+                captchaInput.setCustomValidity("Captcha can only contain letters and numbers.");
+            } else {
+                captchaInput.setCustomValidity("");
+            }
+        }
+
+
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

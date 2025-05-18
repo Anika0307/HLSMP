@@ -1,4 +1,4 @@
-html {
+/*html {
   font-size: 14px;
 }
 
@@ -19,4 +19,355 @@ html {
 
 body {
   margin-bottom: 60px;
+}*/
+html {
+    font-size: 14px;
+}
+
+/*@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}*/
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    font-family: Source Sans Pro !important;
+}
+
+.navbar {
+    background: #fff !important;
+}
+
+.header_1 {
+    background: #0d6efd;
+    padding: 17px;
+    font-size: 20px;
+    color: #fff;
+    text-align: center;
+}
+
+    .header_1 h6 {
+        font-size: 21px !important;
+        font-weight: bold;
+    }
+
+.form-label {
+    font-weight: bold;
+    color: #333;
+}
+
+.input-group-text {
+    color: #fff !important;
+    background: #0d6efd !important;
+}
+
+
+.back_1 {
+    /* background-image:url('../images/background_23.jpg');*/
+    background-size: cover;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.8)), url('../images/background.webp');
+}
+
+.logo_all img {
+    width: 69px;
+}
+
+.logo_2 img {
+    width: 100% !important;
+}
+
+.card-body {
+    padding-top: 0px !important;
+}
+
+.select_district {
+    font-weight: bold;
+    background: #f7f5f5;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.card {
+    margin-top: 50px;
+}
+
+@media only screen and (max-width:767px) {
+    .logo_text {
+        font-size: 21px !important;
+        margin-left: 0px !important;
+    }
+
+    .logo_text2 {
+        margin-left: 0px !important;
+    }
+
+    .logo_mar {
+        margin-left: 11px;
+    }
+
+    .logo_all img {
+        width: 82px;
+    }
+
+
+    .logo_2 {
+        display: none !important;
+    }
+}
+
+html {
+    font-size: 14px;
+}
+
+/*@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}*/
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    font-family: Source Sans Pro !important;
+}
+
+.navbar {
+    background: #fff !important;
+}
+
+.header_1 {
+    background: #0d6efd;
+    padding: 17px;
+    font-size: 20px;
+    color: #fff;
+    text-align: center;
+}
+
+    .header_1 h6 {
+        font-size: 21px !important;
+        font-weight: bold;
+    }
+
+.form-label {
+    font-weight: bold;
+    color: #333;
+}
+
+.input-group-text {
+    color: #fff !important;
+    background: #0d6efd !important;
+}
+
+
+.back_1 {
+    /* background-image:url('../images/background_23.jpg');*/
+    background-size: cover;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.8)), url('../images/background.webp');
+}
+
+.logo_all img {
+    width: 69px;
+}
+
+.logo_2 img {
+    width: 100% !important;
+}
+
+.card-body {
+    padding-top: 0px !important;
+}
+
+.select_district {
+    font-weight: bold;
+    background: #f7f5f5;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.card {
+    margin-top: 50px;
+}
+
+
+.question {
+    margin-bottom: 15px;
+}
+
+.head_1 {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+
+#checklistBox {
+    border-bottom-left-radius: 9px;
+    border-bottom-right-radius: 9px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px #e8e7e7;
+    padding-bottom: 59px;
+}
+
+
+
+.switch {
+    position: relative;
+    height: 26px;
+    width: 120px;
+    background: #fff;
+    border-radius: 3px;
+    margin-top: 11px;
+    -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.switch-label {
+    position: relative;
+    z-index: 2;
+    float: left;
+    width: 58px;
+    line-height: 26px;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+}
+
+    .switch-label:active {
+        font-weight: bold;
+    }
+
+.switch-label-off {
+    padding-left: 2px;
+}
+
+.switch-label-on {
+    padding-right: 2px;
+}
+
+
+.switch-input {
+    display: none;
+}
+
+    .switch-input:checked + .switch-label {
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 0 1px rgba(255, 255, 255, 0.25);
+        transition: 0.15s ease-out;
+        transition-property: color, text-shadow;
+    }
+
+    .switch-input:checked + .switch-label-on ~ .switch-selection {
+        left: 60px;
+        background-color: #ff0000;
+    }
+
+    .switch-input:checked + .switch-label-off ~ .switch-selection {
+        right: 60px;
+        background-color: #0d6efd;
+    }
+
+.switch-selection {
+    position: absolute;
+    z-index: 1;
+    top: 2px;
+    left: 2px;
+    display: block;
+    width: 58px;
+    height: 22px;
+    border-radius: 3px;
+    transition: left 0.15s ease-out;
+}
+
+.box_design {
+    padding: 16px;
+    border: 1px solid #eed9d9;
+    border-radius: 7px;
+    transition: 0.5s;
+    box-shadow: 0px 0px 10px #e8e6e6;
+}
+
+    .box_design:hover {
+        transition: 0.5s;
+        box-shadow: rgb(188, 181, 181) 0px 5px 10px;
+    }
+
+.box_design1 {
+    padding: 16px;
+    border: 1px solid #eed9d9;
+    transition: 0.5s;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+    .box_design1:hover {
+        transition: 0.5s;
+        box-shadow: rgb(188, 181, 181) 0px 5px 10px;
+    }
+
+.head_table {
+    background: #0d6efd;
+    padding: 10px;
+    margin-bottom: -1px;
+    color: #fff;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.head_2 {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.toggle-password {
+    color: rgb(255, 255, 255);
+    padding: 10px;
+    width: 35px !important;
+    cursor: pointer;
+    background: rgb(13, 110, 253);
+}
+
+@media only screen and (max-width:767px) {
+    .logo_text {
+        font-size: 21px !important;
+        margin-left: 0px !important;
+    }
+
+    .logo_text2 {
+        margin-left: 0px !important;
+    }
+
+    .logo_mar {
+        margin-left: 11px;
+    }
+
+    .logo_all img {
+        width: 82px;
+    }
+
+
+    .logo_2 {
+        display: none !important;
+    }
 }

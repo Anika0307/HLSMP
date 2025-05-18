@@ -6,28 +6,53 @@
     <title>@ViewData["Title"] - HLSMP</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/HLSMP.styles.css" asp-append-version="true" />
+    <link href="~/fonts/googlefont.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/WebApplication1_Login_Check.styles.css" asp-append-version="true"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar h2{
+        color:#333;
+        }
+
+            .logo_all{
+            display:flex;
+            }
+
+            .logo_mar{
+                margin-top:24px;
+            }
+
+            .logo_text{
+                font-size:25px;
+                margin-left: 16px;
+                font-weight:bold;
+            }
+            .logo_text2{
+            margin-left: 15px;
+            color: #5b5b5b;
+            }
+    </style>
 </head>
-<body>
+<body class="back_1">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">HLSMP</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+            <div class="container">
+                <div class="row" style="width:100%;">
+                    <div class="col-lg-8">
+                        <div class="logo_all">
+                            <img src="~/images/logo.webp" />
+                            <div class="logo_mar">
+                                <span class="logo_text">Department of Revenue & Disaster Management</span><br />
+                                <span class="logo_text2">Government of Haryana</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="logo_all logo_2" style="float:right; margin-top:10px;">
+                            <img src="~/images/logo2.png" />
+                        </div>
+                    </div>
                 </div>
-            </div>
         </nav>
     </header>
     <div class="container">
@@ -36,13 +61,14 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - HLSMP - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    @*  <footer class="border-top footer text-muted">
+    <div class="container">
+    &copy; 2025 - WebApplication1_Login_Check - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    </div>
+    </footer> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/fontawesome.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
