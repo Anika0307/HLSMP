@@ -7,15 +7,21 @@ namespace HLSMP.Models
         public int Id { get; set; }
 
         [Required]
-        public string District { get; set; }
+        public int RoleId { get; set; }
+
+       
+        public int DistrictId { get; set; }
 
         [Required]
         [EmailAddress]
         public string Email { get; set; }
 
+
+        [StringLength(20)]
         [Required]
         public string Password { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
+
     }
 }
