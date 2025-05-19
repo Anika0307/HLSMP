@@ -11,11 +11,11 @@ public partial class VilMa
 {
     [Column("DIS_CODE")]
     [StringLength(2)]
-    public string DisCode { get; set; } = null!;
+    public int DisCode { get; set; } 
 
     [Column("TEH_CODE")]
     [StringLength(3)]
-    public string TehCode { get; set; } = null!;
+    public int TehCode { get; set; }
 
     [Key]
     [Column("VIL_CODE")]

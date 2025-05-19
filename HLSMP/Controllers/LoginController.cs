@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Net;
 using HLSMP.ViewModel;
 using HLSMP.Models;
+using System.Text.Json;
 
 namespace HLSMP.Controllers
 {
@@ -13,25 +14,17 @@ namespace HLSMP.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        private readonly List<string> _districts = new()
-    {
-        "Ambala", "Bhiwani", "Charkhi Dadri", "Faridabad", "Fatehabad", "Gurugram",
-        "Hisar", "Jhajjar", "Jind", "Kaithal", "Karnal", "Kurukshetra", "Mahendragarh",
-        "Nuh", "Palwal", "Panchkula", "Panipat", "Rewari", "Rohtak", "Sirsa",
-        "Sonipat", "Yamunanagar"
-    };
-
+        private readonly Dictionary<string, int> _roles = new()
+{
+    { "GIS Lab", 1 },
+    { "Service of India", 2 },
+    { "Revenue Department", 3 }
+};
         public LoginController(ApplicationDbContext context)
         {
 
             _context = context;
         }
-
-        //public IActionResult Index()
-        //{
-        //    ViewBag.Districts = _districts;
-        //    return View();
-        //}
 
         public IActionResult LoginView()
         {
@@ -39,77 +32,102 @@ namespace HLSMP.Controllers
             {
                 GeneratedCaptcha = GenerateCaptcha()
             };
-            ViewBag.Districts = _districts;
+            ViewBag.RoleList = _roles.Keys.ToList();
             HttpContext.Session.SetString("Captcha", vm.GeneratedCaptcha);
             return View(vm);
         }
 
         [HttpPost]
-        public IActionResult Login(LoginViewModel vm)
+
+        public async Task<IActionResult> Login(LoginViewModel vm)
         {
             try
             {
+                
                 var storedCaptcha = HttpContext.Session.GetString("Captcha");
                 if (vm.CaptchaCode != storedCaptcha)
                 {
                     ModelState.AddModelError("", "Invalid Captcha");
                     vm.GeneratedCaptcha = GenerateCaptcha();
                     HttpContext.Session.SetString("Captcha", vm.GeneratedCaptcha);
-                    ViewBag.Districts = _districts;
+                    ViewBag.RoleList = _roles.Keys.ToList();
                     return View("LoginView", vm);
                 }
 
-                if (string.IsNullOrWhiteSpace(vm.District) ||
+                if (string.IsNullOrWhiteSpace(vm.Role) ||
                     string.IsNullOrWhiteSpace(vm.Email) ||
                     string.IsNullOrWhiteSpace(vm.Password))
                 {
                     ModelState.AddModelError("", "All fields are required.");
                     vm.GeneratedCaptcha = GenerateCaptcha();
                     HttpContext.Session.SetString("Captcha", vm.GeneratedCaptcha);
-                    ViewBag.Districts = _districts;
+                    ViewBag.RoleList = _roles.Keys.ToList();
+                    return View("LoginView", vm);
+                }
+
+                // Get RoleId from the dictionary
+                if (!_roles.TryGetValue(vm.Role, out int roleId))
+                {
+                    ModelState.AddModelError("", "Invalid Role selected.");
+                    vm.GeneratedCaptcha = GenerateCaptcha();
+                    HttpContext.Session.SetString("Captcha", vm.GeneratedCaptcha);
+                    ViewBag.RoleList = _roles.Keys.ToList();
                     return View("LoginView", vm);
                 }
 
                 var user = _context.LoginDetails.FirstOrDefault(u =>
-                             u.District.ToLower() == vm.District.ToLower() &&
-                             u.Email.ToLower() == vm.Email.ToLower() &&
-                             u.Password == vm.Password &&
-                             u.IsActive);
-
+                    u.RoleId == roleId &&
+                    u.Email.ToLower() == vm.Email.ToLower() &&
+                    u.Password == vm.Password &&
+                    u.IsActive);
 
                 if (user == null)
                 {
                     ModelState.AddModelError("", "Invalid login credentials.");
                     vm.GeneratedCaptcha = GenerateCaptcha();
                     HttpContext.Session.SetString("Captcha", vm.GeneratedCaptcha);
-                    ViewBag.Districts = _districts;
+                    ViewBag.RoleList = _roles.Keys.ToList();
                     return View("LoginView", vm);
                 }
 
                 TempData["Message"] = "Login successful!";
-                SaveLogs(vm);
+                await SaveLogs(user);
+                var userJson = JsonSerializer.Serialize(user);
+                HttpContext.Session.SetString("LoginUser", userJson);
 
-                return RedirectToAction("Checklist", "DistrictLogin");
+                // ✅ Role-based redirection
+                return vm.Role switch
+                {
+                    "GIS Lab" => RedirectToAction("GISView", "GIS"),
+                    "Service of India" => RedirectToAction("ServiceView", "Service"),
+                    "Revenue Department" => RedirectToAction("RevenueView", "Revenue"),
+                    _ => RedirectToAction("LoginView")
+                };
+
             }
             catch (Exception ex)
             {
-                return View("LoginView", vm);
+                TempData["AlertMessage"] = "Exception : " + ex.ToString();
+                return RedirectToAction("LoginView", vm);
             }
         }
 
-        public async Task SaveLogs(LoginViewModel vm)
+        [HttpGet]
+        public async Task SaveLogs(LoginDetail user)
         {
             var log = new LoginLog
             {
-                UserName = vm.Email,
-                District = vm.District,
+                UserName = user.Email,
+                RoleId = user.RoleId,
+                DistrictId = user.DistrictId,
                 LoginTime = DateTime.Now,
-                IPAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+                IPAddress = GetSystemIpAddress()
             };
 
             _context.LoginLogs.Add(log);
             await _context.SaveChangesAsync();
         }
+
         [HttpGet]
         public IActionResult RefreshCaptcha()
         {

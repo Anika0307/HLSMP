@@ -5,7 +5,7 @@ namespace HLSMP.ViewModel
     public class LoginViewModel
     {
         [Required]
-        public string District { get; set; }
+        public string Role { get; set; }
 
         [Required]
         [EmailAddress]
