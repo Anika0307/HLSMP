@@ -1,0 +1,39 @@
+﻿@model HLSMP.ViewModel.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="mb-4 text-primary fw-bold display-6 border-bottom pb-2">📊 District Tatima Dashboard</h2>
+
+
+
+
+<table class="table table-bordered table-hover table-striped text-center align-middle mb-4" style="font-size: 1.3rem">
+    <thead>
+        <tr>
+            <th>District</th>
+            <th>Total Tatimas</th> 
+            <th>Total Tatimas Pending</th>
+            <th>Total Tatimas Completed</th>
+            <th>Pending At SOI</th>
+            <th>Pending At Department</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.TatimaSummaries)
+        {
+            <tr>
+                <td><span class="badge bg-primary">@item.District</span></td>
+            <td><span class="badge bg-primary">@item.TotalTatimaDistrict</span></td>
+            <td><span class="badge bg-primary">@item.TatimasPending</span></td>
+            <td><span class="badge bg-primary">@item.TatimasCompleted</span></td>
+
+                <td><span class="badge bg-primary">@item.PendingAtSOI</span></td>
+                <td><span class="badge bg-primary">@item.PendingAtDepartment</span></td>
+
+
+        </tr>}
+       
+    </tbody>
+</table>
