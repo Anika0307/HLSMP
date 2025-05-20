@@ -10,41 +10,54 @@ namespace HLSMP.Controllers
 {
     public class GISController : Controller
     {
-       
+
         private readonly ApplicationDbContext _context;
 
         public GISController(ApplicationDbContext context)
         {
             _context = context;
         }
+        //var userJson = HttpContext.Session.GetString("LoginUser");
+        //LoginDetail user = null;
+
+        //    if (!string.IsNullOrEmpty(userJson))
+        //    {
+        //        user = JsonSerializer.Deserialize<LoginDetail>(userJson);
+        //    }
 
         public IActionResult GISView()
         {
             var userJson = HttpContext.Session.GetString("LoginUser");
             LoginDetail user = null;
+
             if (!string.IsNullOrEmpty(userJson))
             {
                 user = JsonSerializer.Deserialize<LoginDetail>(userJson);
             }
 
-            var districts = _context.DisMas
-        .Select(d => new SelectListItem
-        {
-            Value = d.DisCode.ToString(),
-            Text = d.DisName
-        }).ToList();
-
-            var model = new DisTehVillViewModel
+            var viewModel = new DisTehVillViewModel
             {
-                Districts = districts,
-                SelectedDistrictId = user?.DistrictId ?? 0,
-                Tehsils = new List<SelectListItem>(),
-                Villages = new List<SelectListItem>()
+                Districts = _context.DisMas
+                    .Where(d => d.DisCode == Convert.ToString(user.DistrictId))
+                    .Select(d => new SelectListItem
+                    {
+                        Text = d.DisName,
+                        Value = d.DisCode
+                    }).ToList(),
+
+                Reasons = _context.TblReasonMas
+                    .Select(r => new SelectListItem
+                    {
+                        Text = r.Reason,
+                        Value = r.ReasonId.ToString()
+                    }).ToList()
             };
 
-            return View(model);
-            
+            return View(viewModel);
         }
+
+
+
 
         [HttpPost]
         public IActionResult Search(DisTehVillViewModel model)
@@ -54,25 +67,31 @@ namespace HLSMP.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetTehsils(string districtId)
+        public JsonResult OnGetVillages(string tehsilCode)
         {
-            var tehsils = await _context.TehMasLgdUpdateds
-                .Where(t => t.DisCode == Convert.ToInt32(districtId))
-                .Select(t => new { id = t.TehCode, name = t.TehName })
-                .ToListAsync();
+            var Villages = _context.VilMas
+                 .Where(v => v.TehCode == Convert.ToInt32(tehsilCode))
+                 .Select(v => new SelectListItem
+                 {
+                     Text = v.VilName,
+                     Value = v.VilCode
+                 }).ToList();
 
-            return Json(tehsils);
+            return new JsonResult(Villages);
         }
 
         [HttpGet]
-        public async Task<JsonResult> GetVillages(string tehsilId)
+        public JsonResult OnGetTehsil(string districtId)
         {
-            var villages = await _context.VilMas
-                .Where(v => v.TehCode == Convert.ToInt32(tehsilId))
-                .Select(v => new { id = v.VilCode, name = v.VilName })
-                .ToListAsync();
+            var Tehsils = _context.TehMasLgdUpdateds
+                .Where(v => v.DisCode == Convert.ToInt32(districtId))
+                .Select(v => new SelectListItem
+                {
+                    Text = v.TehName,
+                    Value = v.TehCode.ToString()
+                }).ToList();
 
-            return Json(villages);
+            return new JsonResult(Tehsils);
         }
     }
 }

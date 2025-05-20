@@ -6,7 +6,7 @@
         $('#tehsilDropdown').empty().append('<option>Loading...</option>');
         $('#villageDropdown').empty().append('<option>-- Select Village --</option>');
 
-        $.getJSON('/GIS/GetTehsils', { districtId: districtId }, function (data) {
+        $.getJSON('/GIS/OnGetTehsil', { districtId: districtId }, function (data) {
             $('#debugLog').html("Tehsils loaded: " + data.length); 
 
             $('#tehsilDropdown').empty().append('<option value="">-- Select Tehsil --</option>');
@@ -20,7 +20,7 @@
         var tehsilId = $(this).val();
         $('#villageDropdown').empty().append('<option>Loading...</option>');
 
-        $.getJSON('/GIS/GetVillages', { tehsilId: tehsilId }, function (data) {
+        $.getJSON('/GIS/OnGetVillages', { tehsilId: tehsilId }, function (data) {
             $('#villageDropdown').empty().append('<option value="">-- Select Village --</option>');
             $.each(data, function (i, village) {
                 $('#villageDropdown').append('<option value="' + village.id + '">' + village.name + '</option>');

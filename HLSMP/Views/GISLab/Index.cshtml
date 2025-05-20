@@ -1,0 +1,24 @@
+﻿@using HLSMP.ViewModel
+@model GISViewModel
+
+@{
+    ViewData["Title"] = "District Dropdown";
+}
+
+<h2>Update Tatima Details</h2>
+
+<form asp-action="Index" method="post">
+    <div class="form-group">
+        <label asp-for="SelectedDisCode">District</label>
+        <select asp-for="SelectedDisCode" class="form-control"
+                asp-items="@(new SelectList(Model.Districts, "DisCode", "DisName"))">
+            <option value="">-- Select District --</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success mt-3">@ViewBag.Message</div>
+}

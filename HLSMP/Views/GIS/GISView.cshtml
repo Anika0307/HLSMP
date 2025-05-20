@@ -1,5 +1,6 @@
 ﻿@using HLSMP.ViewModel
 @model DisTehVillViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     ViewData["Title"] = "Update Tatima Details";
@@ -10,11 +11,10 @@
         <div class="header_1"><h6 class="mb-0">Update Tatima Details</h6></div>
         <div class="card-body text-center">
 
-            <h4 class="mb-4"></h4>
             <form asp-action="Search" method="post">
                 <div class="form-row row">
                     <div class="form-group col-12 col-md-4">
-                        <label>District</label>
+                        <label for="SelectedDistrictId">District</label>
                         <select asp-for="SelectedDistrictId" class="form-control" asp-items="Model.Districts" id="districtDropdown">
                             <option value="">-- Select District --</option>
                         </select>
@@ -33,16 +33,53 @@
                             <option value="">-- Select Village --</option>
                         </select>
                     </div>
+
+                    <div class="form-group col-12 col-md-4">
+                        <label for="SelectedReasonId">Reason</label>
+                        <select asp-for="SelectedReasonId" class="form-control" asp-items="Model.Reasons">
+                            <option value="">-- Select Reason --</option>
+                        </select>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary mt-3">Search</button>
             </form>
+
         </div>
     </div>
 </div>
 
 @section Scripts {
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="~/js/GISScript.js" type="text/javascript"></script>
+
+    <script>
+        $(document).ready(function () {
+            console.log("GIS Script Loaded");
+
+            $('#districtDropdown').change(function () {
+                var districtId = $(this).val();
+                $('#tehsilDropdown').empty().append('<option>Loading...</option>');
+                $('#villageDropdown').empty().append('<option value="">-- Select Village --</option>');
+
+                $.getJSON('/GIS/OnGetTehsil', { districtId: districtId }, function (data) {
+                    $('#tehsilDropdown').empty().append('<option value="">-- Select Tehsil --</option>');
+                    $.each(data, function (i, tehsil) {
+                        $('#tehsilDropdown').append('<option value="' + tehsil.value + '">' + tehsil.text + '</option>');
+                    });
+                });
+            });
+
+            $('#tehsilDropdown').change(function () {
+                var tehsilId = $(this).val();
+                $('#villageDropdown').empty().append('<option>Loading...</option>');
+
+                $.getJSON('/GIS/OnGetVillages', { tehsilCode: tehsilId }, function (data) {
+                    $('#villageDropdown').empty().append('<option value="">-- Select Village --</option>');
+                    $.each(data, function (i, village) {
+                        $('#villageDropdown').append('<option value="' + village.value + '">' + village.text + '</option>');
+                    });
+                });
+            });
+        });
+    </script>
 }
