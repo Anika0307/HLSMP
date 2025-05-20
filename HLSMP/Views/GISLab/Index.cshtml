@@ -1,24 +1,136 @@
-﻿@using HLSMP.ViewModel
-@model GISViewModel
+﻿@model HLSMP.ViewModel.GISViewModel
 
 @{
-    ViewData["Title"] = "District Dropdown";
+    ViewData["Title"] = "Update Tatima Details";
 }
 
-<h2>Update Tatima Details</h2>
+<div class="container d-flex justify-content-center align-items-center mt-5">
+    <div class="card shadow" style="width: 100%; border:none;">
+        <div class="header_1"><h6 class="mb-0">Update Tatima Details</h6></div>
+        <div class="card-body text-center">
+           @*  <form method="post" asp-controller="GISLab" asp-action="Index"> *@
+            <form method="post" asp-controller="GISLab" asp-action="Index" enctype="multipart/form-data">
 
-<form asp-action="Index" method="post">
-    <div class="form-group">
-        <label asp-for="SelectedDisCode">District</label>
-        <select asp-for="SelectedDisCode" class="form-control"
-                asp-items="@(new SelectList(Model.Districts, "DisCode", "DisName"))">
-            <option value="">-- Select District --</option>
-        </select>
+                <div class="form-row row">
+
+                    <div class="form-group col-12 col-md-6">
+                        <label>District</label>
+                        <select id="DIS_CODE" name="DIS_CODE" class="form-control">
+                            <option value="">-- Select District --</option>
+                            @foreach (var district in Model.DistrictList)
+
+                            {
+                                <option value="@district.Value" selected="@(district.Value == Model.DIS_CODE ? "selected" : null)">
+                                    @district.Text
+                                </option>
+                            }
+                        </select>
+
+                    </div>
+
+                    <div class="form-group col-12 col-md-6">
+                        <label>Tehsil</label>
+                        <select id="Tehsil" name="Tehsil" class="form-control">
+                            <option value="">-- Select Tehsil --</option>
+                            @if (Model.TehsilList != null)
+                            {
+                                foreach (var tehsil in Model.TehsilList)
+                                {
+                                    <option value="@tehsil.Value" selected="@(tehsil.Value == Model.Tehsil ? "selected" : null)">
+                                        @tehsil.Text
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="form-row row" >
+
+                    <div class="form-group col-12 col-md-6">
+                        <label>Village</label>
+                        <select id="Village" name="Village" class="form-control">
+                            <option value="">-- Select Village --</option>
+                            @if (Model.VillageList != null)
+                            {
+                                foreach (var vill in Model.VillageList)
+                                {
+                                    <option value="@vill.Value" selected="@(vill.Value == Model.Village ? "selected" : null)">
+                                        @vill.Text
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group col-12 col-md-6">
+                        <label>Village Stage</label>
+                        <select id="VillageStage" name="VillageStage" class="form-control">
+                            <option value="">-- Select Village Stage --</option>
+                            @if (Model.VillageStageList != null)
+                            {
+                                foreach (var vill in Model.VillageStageList)
+                                {
+                                    <option value="@vill.Value" selected="@(vill.Value == Model.VillageStage ? "selected" : null)">@vill.Text</option>
+                                }
+                            }
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="form-row row">
+
+                    <div class="form-group col-12 col-md-6">
+                        <label asp-for="WorkDate" style="text-align:left">If Work is done, Select date of work done. If not,Then select date When Work will be done?</label>
+                        <input asp-for="WorkDate" class="form-control" type="date" />
+                        <span asp-validation-for="WorkDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-12 col-md-6">
+                        <label>Is work done?</label><br />
+
+                        <input type="radio" id="yes" name="IsWorkDone" value="true" @(Model.IsWorkDone == true ? "checked" : "") />
+                        <label for="yes">Yes</label>
+                        <input type="radio" id="no" name="IsWorkDone" value="false" @(Model.IsWorkDone == false ? "checked" : "") />
+                        <label for="no">No</label>
+                    </div>
+                    
+                </div>
+                <div class="form-row row">
+                    <div class="form-group">
+                        <label asp-for="UploadedFile"></label>
+                        <input asp-for="UploadedFile" type="file" class="form-control" />
+                        <span asp-validation-for="UploadedFile" class="text-danger"></span>
+                    </div>
+                    
+               </div>
+
+                <button type="submit" class="btn btn-primary">Save</button>
+            </form>
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-success">@ViewBag.Message</div>
+            }
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+</div>
 
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-success mt-3">@ViewBag.Message</div>
-}
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        const gisUrls = {
+            getTehsils: '@Url.Action("GetTehsilsByDistrict", "GISLab")',
+            getVillages: '@Url.Action("GetVillagesByTehsil", "GISLab")',
+            getVillageStages: '@Url.Action("GetVillageStageList", "GISLab")'
+        };
+    </script>
+    <script src="~/js/GISScript.js" type="text/javascript"></script>
+  
+
+    }
+
+

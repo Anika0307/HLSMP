@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace HLSMP.Migrations
 {
     /// <inheritdoc />
-    public partial class AddVillageTatimaTable : Migration
+    public partial class AddColToVT : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,7 +16,6 @@ namespace HLSMP.Migrations
                 type: "nvarchar(100)",
                 maxLength: 100,
                 nullable: true);
-
         }
 
         /// <inheritdoc />
@@ -26,7 +24,6 @@ namespace HLSMP.Migrations
             migrationBuilder.DropColumn(
                 name: "UploadedDocument",
                 table: "VillageTatimas");
-
         }
     }
 }

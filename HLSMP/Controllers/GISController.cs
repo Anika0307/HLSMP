@@ -45,12 +45,12 @@ namespace HLSMP.Controllers
                         Value = d.DisCode
                     }).ToList(),
 
-                Reasons = _context.TblReasonMas
-                    .Select(r => new SelectListItem
-                    {
-                        Text = r.Reason,
-                        Value = r.ReasonId.ToString()
-                    }).ToList()
+                //Reasons = _context.TblReasonMas
+                //    .Select(r => new SelectListItem
+                //    {
+                //        Text = r.Reason,
+                //        Value = r.ReasonId.ToString()
+                //    }).ToList()
             };
 
             return View(viewModel);
@@ -84,7 +84,7 @@ namespace HLSMP.Controllers
         public JsonResult OnGetTehsil(string districtId)
         {
             var Tehsils = _context.TehMasLgdUpdateds
-                .Where(v => v.DisCode == Convert.ToInt32(districtId))
+                //.Where(v => v.DisCode == Convert.ToInt32(districtId))
                 .Select(v => new SelectListItem
                 {
                     Text = v.TehName,

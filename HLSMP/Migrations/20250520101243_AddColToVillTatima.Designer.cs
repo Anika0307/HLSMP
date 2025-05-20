@@ -4,6 +4,7 @@ using HLSMP.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HLSMP.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250520101243_AddColToVillTatima")]
+    partial class AddColToVillTatima
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -458,6 +461,58 @@ namespace HLSMP.Migrations
                     b.HasKey("VillageCode");
 
                     b.ToTable("VillageTatimas");
+
+                    b.HasData(
+                        new
+                        {
+                            VillageCode = 1,
+                            Completed = 30,
+                            Dist_Code = 1,
+                            Pending = 20,
+                            StatusCode = 2,
+                            Teh_Code = 1,
+                            TotalTatima = 50
+                        },
+                        new
+                        {
+                            VillageCode = 32,
+                            Completed = 30,
+                            Dist_Code = 1,
+                            Pending = 30,
+                            StatusCode = 3,
+                            Teh_Code = 6,
+                            TotalTatima = 60
+                        },
+                        new
+                        {
+                            VillageCode = 1931,
+                            Completed = 30,
+                            Dist_Code = 2,
+                            Pending = 40,
+                            StatusCode = 4,
+                            Teh_Code = 7,
+                            TotalTatima = 70
+                        },
+                        new
+                        {
+                            VillageCode = 1982,
+                            Completed = 30,
+                            Dist_Code = 2,
+                            Pending = 40,
+                            StatusCode = 5,
+                            Teh_Code = 11,
+                            TotalTatima = 70
+                        },
+                        new
+                        {
+                            VillageCode = 2110,
+                            Completed = 60,
+                            Dist_Code = 2,
+                            Pending = 0,
+                            StatusCode = 7,
+                            Teh_Code = 10,
+                            TotalTatima = 60
+                        });
                 });
 
             modelBuilder.Entity("HLSMP.ViewModel.TatimaSummary", b =>

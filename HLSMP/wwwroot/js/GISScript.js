@@ -1,31 +1,52 @@
 ﻿$(document).ready(function () {
-    console.log("GIS Script Loaded");
-    $('#districtDropdown').change(function () {
-        var districtId = $(this).val();
-        console.log("District changed");
-        $('#tehsilDropdown').empty().append('<option>Loading...</option>');
-        $('#villageDropdown').empty().append('<option>-- Select Village --</option>');
+    console.log("Script loaded");
 
-        $.getJSON('/GIS/OnGetTehsil', { districtId: districtId }, function (data) {
-            $('#debugLog').html("Tehsils loaded: " + data.length); 
-
-            $('#tehsilDropdown').empty().append('<option value="">-- Select Tehsil --</option>');
-            $.each(data, function (i, tehsil) {
-                $('#tehsilDropdown').append('<option value="' + tehsil.id + '">' + tehsil.name + '</option>');
-            });
+    $('#DIS_CODE').change(function () {
+        var DIS_CODE = $(this).val();
+        $.ajax({
+            url: gisUrls.getTehsils,
+            type: 'POST',
+            data: { DIS_CODE: DIS_CODE },
+            success: function (data) {
+                var tehsilDropdown = $('#Tehsil');
+                tehsilDropdown.empty();
+                tehsilDropdown.append('<option value="">-- Select Tehsil --</option>');
+                $.each(data, function (index, item) {
+                    tehsilDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
+                });
+            }
         });
     });
 
-    $('#tehsilDropdown').change(function () {
-        var tehsilId = $(this).val();
-        $('#villageDropdown').empty().append('<option>Loading...</option>');
-
-        $.getJSON('/GIS/OnGetVillages', { tehsilId: tehsilId }, function (data) {
-            $('#villageDropdown').empty().append('<option value="">-- Select Village --</option>');
-            $.each(data, function (i, village) {
-                $('#villageDropdown').append('<option value="' + village.id + '">' + village.name + '</option>');
-            });
+    $('#Tehsil').change(function () {
+        var tehCode = $(this).val();
+        $.ajax({
+            url: gisUrls.getVillages,
+            type: 'POST',
+            data: { TehCode: tehCode },
+            success: function (data) {
+                var villageDropdown = $('#Village');
+                villageDropdown.empty();
+                villageDropdown.append('<option value="">-- Select Village --</option>');
+                $.each(data, function (index, item) {
+                    villageDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
+                });
+            }
         });
     });
 
+    $('#Village').change(function () {
+        $.ajax({
+            url: gisUrls.getVillageStages,
+            type: 'POST',
+            success: function (data) {
+                var VillageStageDropdown = $('#VillageStage');
+                VillageStageDropdown.empty();
+                VillageStageDropdown.append('<option value="">-- Select Village Stage --</option>');
+                $.each(data, function (index, item) {
+                    VillageStageDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
+                });
+            }
+        });
+    });
 });

@@ -13,7 +13,7 @@ public partial class TehMasLgdUpdated
     [Column("DIS_CODE")]
     [StringLength(2)]
     [Unicode(false)]
-    public int DisCode { get; set; }
+    public string DisCode { get; set; }
 
     [Column("TCODE_OLD")]
     [StringLength(2)]
