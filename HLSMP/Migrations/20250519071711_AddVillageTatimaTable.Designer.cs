@@ -4,6 +4,7 @@ using HLSMP.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HLSMP.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250519071711_AddVillageTatimaTable")]
+    partial class AddVillageTatimaTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,14 +103,9 @@ namespace HLSMP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-
                     b.Property<string>("District")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("DistrictId")
-                        .HasColumnType("int");
-
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -118,15 +116,7 @@ namespace HLSMP.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-
                         .HasColumnType("nvarchar(max)");
-
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
 
                     b.HasKey("Id");
 
@@ -141,14 +131,9 @@ namespace HLSMP.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-
                     b.Property<string>("District")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("DistrictId")
-                        .HasColumnType("int");
-
 
                     b.Property<string>("IPAddress")
                         .IsRequired()
@@ -157,19 +142,9 @@ namespace HLSMP.Migrations
                     b.Property<DateTime>("LoginTime")
                         .HasColumnType("datetime2");
 
-
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
 
                     b.HasKey("Id");
 
@@ -253,18 +228,11 @@ namespace HLSMP.Migrations
                         .HasColumnType("nvarchar(6)")
                         .HasColumnName("CTEH_CODE");
 
-
                     b.Property<string>("DisCode")
                         .IsRequired()
                         .HasMaxLength(2)
                         .IsUnicode(false)
                         .HasColumnType("char(2)")
-
-                    b.Property<int>("DisCode")
-                        .HasMaxLength(2)
-                        .IsUnicode(false)
-                        .HasColumnType("int")
-
                         .HasColumnName("DIS_CODE")
                         .IsFixedLength();
 
@@ -306,12 +274,6 @@ namespace HLSMP.Migrations
                         .HasMaxLength(3)
                         .IsUnicode(false)
                         .HasColumnType("char(3)")
-
-                    b.Property<int>("TehCode")
-                        .HasMaxLength(3)
-                        .IsUnicode(false)
-                        .HasColumnType("int")
-
                         .HasColumnName("TEH_CODE")
                         .IsFixedLength();
 
@@ -367,16 +329,10 @@ namespace HLSMP.Migrations
                         .HasColumnType("nvarchar(2)")
                         .HasColumnName("CON_CODE");
 
-
                     b.Property<string>("DisCode")
                         .IsRequired()
                         .HasMaxLength(2)
                         .HasColumnType("nvarchar(2)")
-
-                    b.Property<int>("DisCode")
-                        .HasMaxLength(2)
-                        .HasColumnType("int")
-
                         .HasColumnName("DIS_CODE");
 
                     b.Property<string>("DivCode")
@@ -428,16 +384,10 @@ namespace HLSMP.Migrations
                         .HasColumnType("nvarchar(2)")
                         .HasColumnName("STA_CODE");
 
-
                     b.Property<string>("TehCode")
                         .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("nvarchar(3)")
-
-                    b.Property<int>("TehCode")
-                        .HasMaxLength(3)
-                        .HasColumnType("int")
-
                         .HasColumnName("TEH_CODE");
 
                     b.Property<DateTime?>("UpdateDate")
@@ -504,58 +454,6 @@ namespace HLSMP.Migrations
                     b.HasKey("VillageCode");
 
                     b.ToTable("VillageTatimas");
-
-                    b.HasData(
-                        new
-                        {
-                            VillageCode = 1,
-                            Completed = 30,
-                            Dist_Code = 1,
-                            Pending = 20,
-                            StatusCode = 2,
-                            Teh_Code = 1,
-                            TotalTatima = 50
-                        },
-                        new
-                        {
-                            VillageCode = 32,
-                            Completed = 30,
-                            Dist_Code = 1,
-                            Pending = 30,
-                            StatusCode = 3,
-                            Teh_Code = 6,
-                            TotalTatima = 60
-                        },
-                        new
-                        {
-                            VillageCode = 1931,
-                            Completed = 30,
-                            Dist_Code = 2,
-                            Pending = 40,
-                            StatusCode = 4,
-                            Teh_Code = 7,
-                            TotalTatima = 70
-                        },
-                        new
-                        {
-                            VillageCode = 1982,
-                            Completed = 30,
-                            Dist_Code = 2,
-                            Pending = 40,
-                            StatusCode = 5,
-                            Teh_Code = 11,
-                            TotalTatima = 70
-                        },
-                        new
-                        {
-                            VillageCode = 2110,
-                            Completed = 60,
-                            Dist_Code = 2,
-                            Pending = 0,
-                            StatusCode = 7,
-                            Teh_Code = 10,
-                            TotalTatima = 60
-                        });
                 });
 
             modelBuilder.Entity("HLSMP.Models.TblUserMa", b =>
