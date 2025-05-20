@@ -119,7 +119,7 @@ namespace HLSMP.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
 
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
 
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -258,7 +258,7 @@ namespace HLSMP.Migrations
                         .IsRequired()
                         .HasMaxLength(2)
                         .IsUnicode(false)
-                        .HasColumnType("char(2)")
+                        .HasColumnType("char(2)");
 
                     b.Property<int>("DisCode")
                         .HasMaxLength(2)
@@ -305,7 +305,7 @@ namespace HLSMP.Migrations
                         .IsRequired()
                         .HasMaxLength(3)
                         .IsUnicode(false)
-                        .HasColumnType("char(3)")
+                        .HasColumnType("char(3)");
 
                     b.Property<int>("TehCode")
                         .HasMaxLength(3)
@@ -371,7 +371,7 @@ namespace HLSMP.Migrations
                     b.Property<string>("DisCode")
                         .IsRequired()
                         .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)")
+                        .HasColumnType("nvarchar(2)");
 
                     b.Property<int>("DisCode")
                         .HasMaxLength(2)
@@ -432,7 +432,7 @@ namespace HLSMP.Migrations
                     b.Property<string>("TehCode")
                         .IsRequired()
                         .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)")
+                        .HasColumnType("nvarchar(3)");
 
                     b.Property<int>("TehCode")
                         .HasMaxLength(3)

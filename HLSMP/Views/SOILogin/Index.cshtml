@@ -1,0 +1,132 @@
+﻿@model HLSMP.ViewModel.SOIViewModel
+
+@{
+	ViewData["Title"] = "SOI Login";
+}
+
+<h2>SOI Login</h2>
+
+<div class="container d-flex justify-content-center align-items-center mt-lg-auto">
+	<div class="card shadow" style="width: 100%; border:none;">
+		<div class="header_1"><h6 class="mb-0">Approve Village Tatimas</h6></div>
+		<div class="card-body text-center">
+
+			
+			<form method="post" asp-controller="SOILogin" asp-action="Index">
+				<div class="form-row d-flex align-items-end">
+					<div class="form-group col-md-6">
+						<div class="form-group">
+							<label>District</label>
+							<select id="DIS_CODE" name="DIS_CODE" class="form-control">
+								<option value="">-- Select District --</option>
+								@foreach (var district in Model.DistrictList)
+
+								{
+									@* var selected = district.Value == Model.DIS_CODE ? "selected" : ""; *@
+									<option value="@district.Value" selected="@(district.Value == Model.DIS_CODE ? "selected" : null)">
+										@district.Text
+									</option>
+								}
+							</select>
+
+						</div>
+					
+
+
+						<div class="form-group col-md-5">
+
+					<label>Tehsil</label>
+					<select id="TEH_CODE" name="TEH_CODE" class="form-control">
+						<option value="">-- Select Tehsil --</option>
+						@if (Model.TehsilList != null)
+						{
+							foreach (var tehsil in Model.TehsilList)
+							{
+								<option value="@tehsil.Value" selected="@(tehsil.Value == Model.TEH_CODE ? "selected" : null)">
+									@tehsil.Text
+								</option>
+							}
+						}
+					</select>
+				</div>
+					</div>
+				</div>
+
+
+				<div>
+					<button type="submit" class="btn btn-primary">Search</button>
+				</div>
+			</form>
+
+		</div>
+			
+
+
+			@if (Model.Villages != null && Model.Villages.Any())
+			{
+				<table class="table table-bordered mt-3">
+					<thead>
+						<tr>
+							<th>Village Name</th>
+							<th>Total Tatimas</th>
+							<th>Completed Tatimas</th>
+							<th>Pending Tatimas</th>
+							<th>Documents</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var v in Model.Villages)
+						{
+							<tr>
+								<td>@v.VillageName</td>
+								<td>@v.TotalTatima</td>
+								<td>@v.CompletedTatima</td>
+								<td>@v.PendingTatima</td>
+								<td></td>
+								<td>
+									<button type="button" class="btn btn-success btn-sm mr-2">Accept</button>
+									<button type="button" class="btn btn-danger btn-sm">Reject</button>
+								</td>
+
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+
+
+			</<div>
+			</div>
+		</div>
+	</div>
+</<div>
+	
+
+
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#DIS_CODE').change(function () {
+                var DIS_CODE = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetTehsilsByDistrict", "SOILogin")',
+                    type: 'POST',
+                    data: { DIS_CODE: DIS_CODE },
+                    success: function (data) {
+                        var tehsilDropdown = $('#TEH_CODE');
+                        tehsilDropdown.empty();
+                        tehsilDropdown.append('<option value="">-- Select Tehsil --</option>');
+                        $.each(data, function (index, item) {
+                            tehsilDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+
