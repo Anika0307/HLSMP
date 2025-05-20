@@ -19,5 +19,8 @@ namespace HLSMP.Models
 
         public int StatusCode { get; set; }
 
+        [StringLength(100)]
+        public string?  UploadedDocument { get; set; }
+
     }
 }

@@ -4,6 +4,7 @@ using HLSMP.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HLSMP.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250520101959_AddColToVT")]
+    partial class AddColToVT
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,7 +115,6 @@ namespace HLSMP.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -236,9 +238,7 @@ namespace HLSMP.Migrations
                         .IsRequired()
                         .HasMaxLength(2)
                         .IsUnicode(false)
-
                         .HasColumnType("char(2)")
-
                         .HasColumnName("DIS_CODE")
                         .IsFixedLength();
 
@@ -274,14 +274,6 @@ namespace HLSMP.Migrations
                         .HasMaxLength(2)
                         .HasColumnType("nvarchar(2)")
                         .HasColumnName("TCODE_OLD");
-
-
-                    b.Property<string>("TehCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .IsUnicode(false)
-                        .HasColumnType("char(3)");
-
 
                     b.Property<int>("TehCode")
                         .HasMaxLength(3)
@@ -342,14 +334,6 @@ namespace HLSMP.Migrations
                         .HasColumnType("nvarchar(2)")
                         .HasColumnName("CON_CODE");
 
-
-
-                    b.Property<string>("DisCode")
-                        .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)");
-
-
                     b.Property<int>("DisCode")
                         .HasMaxLength(2)
                         .HasColumnType("int")
@@ -403,14 +387,6 @@ namespace HLSMP.Migrations
                         .HasMaxLength(2)
                         .HasColumnType("nvarchar(2)")
                         .HasColumnName("STA_CODE");
-
-
-
-                    b.Property<string>("TehCode")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("nvarchar(3)");
-
 
                     b.Property<int>("TehCode")
                         .HasMaxLength(3)

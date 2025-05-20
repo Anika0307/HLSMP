@@ -17,12 +17,12 @@ namespace HLSMP.Controllers
         public IActionResult Index()
         {
             // Step 1: Fetch EF Core model data (Models.TatimaSummary)
-            var data = _context.TatimaSummaries
+            var data = _context.TatimaSummarys
                 .FromSqlRaw("EXEC GetDistrictTatimaSummary")
                 .ToList();
 
             // Step 2: Map Models.TatimaSummary to ViewModel.TatimaSummary
-            var vmData = data.Select(d => new HLSMP.ViewModel.TatimaSummary
+            var vmData = data.Select(d => new TatimaSummary
             {
                 District = d.District,
                 TotalTatimaDistrict = d.TotalTatimaDistrict,
