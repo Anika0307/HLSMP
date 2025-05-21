@@ -34,14 +34,78 @@ namespace HLSMP.Controllers
 
         //<---------------------------District,Tehsil,Village Bind Methods---------------------->
         [HttpPost]
-        public IActionResult Index(GISViewModel model)
+        public async Task<IActionResult> Index(GISViewModel model)
         {
             model.DistrictList = GetDistricts();
             model.TehsilList = GetTehsils(model.DIS_CODE);
-            return View(model);
+            model.VillageList = GetVillages(model.Tehsil);
+            model.VillageStageList = GetVillStageList();
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            
+            string rootPath = Path.Combine(_env.WebRootPath, "Documents", model.DIS_CODE, model.Tehsil, model.Village);
+            if (!Directory.Exists(rootPath))
+                Directory.CreateDirectory(rootPath);
+
+            string savedFileName = null;
+            if (model.UploadedFile != null && model.UploadedFile.Length > 0)
+            {
+                savedFileName = Path.GetFileName(model.UploadedFile.FileName);
+                string fullPath = Path.Combine(rootPath, savedFileName);
+
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    await model.UploadedFile.CopyToAsync(stream);
+                }
+            }
+
+            // Save to database
+            var data = new VillageTatima
+            {
+                Dist_Code = int.Parse(model.DIS_CODE),
+                Teh_Code = int.Parse(model.Tehsil),
+                VillageCode = int.Parse(model.Village),
+                TotalTatima = model.TotalTatima,
+                Completed = model.Completed,
+                Pending = model.Pending,
+                IsWorkDone = model.IsWorkDone == true ? "Y" : "N",
+                StatusCode= 1, 
+                UploadedDocument = savedFileName,
+                WorkDate = Convert.ToDateTime(model.WorkDate),
+                VillageStageCode = Convert.ToInt32(model.VillageStage)
+            };
+
+            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+            using SqlCommand cmd = new(@"INSERT INTO [VillageTatimas]   (Dist_Code, Teh_Code, VillageCode, TotalTatima, Completed, Pending, StatusCode, IsWorkDone, UploadedDocument, WorkDate, VillageStageCode)  VALUES  (@Dist_Code, @Teh_Code, @VillageCode, @TotalTatima, @Completed, @Pending, @StatusCode,@IsWorkDone, @UploadedDocument, @WorkDate, @VillageStageCode)", conn);
+
+            cmd.Parameters.AddWithValue("@Dist_Code", data.Dist_Code);
+            cmd.Parameters.AddWithValue("@Teh_Code", data.Teh_Code);
+            cmd.Parameters.AddWithValue("@VillageCode", data.VillageCode);
+            cmd.Parameters.AddWithValue("@TotalTatima", data.TotalTatima);
+            
+            cmd.Parameters.AddWithValue("@Completed", data.Completed);
+            cmd.Parameters.AddWithValue("@Pending", data.Pending);
+            cmd.Parameters.AddWithValue("@IsWorkDone", data.IsWorkDone);
+            cmd.Parameters.AddWithValue("@StatusCode", data.StatusCode);
+            cmd.Parameters.AddWithValue("@WorkDate", data.WorkDate);
+            cmd.Parameters.AddWithValue("@VillageStageCode", data.VillageStageCode);
+
+            cmd.Parameters.AddWithValue("@UploadedDocument", (object?)data.UploadedDocument ?? DBNull.Value);
+
+            conn.Open();
+            cmd.ExecuteNonQuery();
+            conn.Close();
+
+            TempData["Message"] = "Tatima details saved successfully.";
+            return RedirectToAction("Index");
+
+
         }
 
-        [HttpPost]
+            [HttpPost]
         public JsonResult GetTehsilsByDistrict(string DIS_CODE)
         {
             var tehsils = GetTehsils(DIS_CODE);
@@ -84,30 +148,30 @@ namespace HLSMP.Controllers
         //<---------------------------/Reason Bind Methods ---------------------->
         //<--------------------------- Upload Documnet Methods ---------------------->
  
-        [HttpPost]
-        public async Task<IActionResult> UploadDocument(GISViewModel model)
-        {
-            if (model.UploadedFile == null || model.UploadedFile.Length == 0)
-                return BadRequest("No file uploaded.");
+        //[HttpPost]
+        //public async Task<IActionResult> UploadDocument(GISViewModel model)
+        //{
+        //    if (model.UploadedFile == null || model.UploadedFile.Length == 0)
+        //        return BadRequest("No file uploaded.");
 
-            string rootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Documents");
+        //    string rootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Documents");
 
-            string folderPath = Path.Combine(rootPath, model.DIS_CODE, model.Tehsil, model.Village);
+        //    string folderPath = Path.Combine(rootPath, model.DIS_CODE, model.Tehsil, model.Village);
 
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
+        //    if (!Directory.Exists(folderPath))
+        //    {
+        //        Directory.CreateDirectory(folderPath);
+        //    }
 
-            string filePath = Path.Combine(folderPath, Path.GetFileName(model.UploadedFile.FileName));
+        //    string filePath = Path.Combine(folderPath, Path.GetFileName(model.UploadedFile.FileName));
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await model.UploadedFile.CopyToAsync(stream);
-            }
+        //    using (var stream = new FileStream(filePath, FileMode.Create))
+        //    {
+        //        await model.UploadedFile.CopyToAsync(stream);
+        //    }
 
-            return Ok("File uploaded successfully.");
-        }
+        //    return Ok("File uploaded successfully.");
+        //}
 
         //<---------------------------/ Upload Documnet Methods ---------------------->
         //<---------------------------DropDown Bind Methods---------------------->

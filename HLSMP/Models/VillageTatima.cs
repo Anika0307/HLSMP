@@ -22,5 +22,12 @@ namespace HLSMP.Models
         [StringLength(100)]
         public string?  UploadedDocument { get; set; }
 
+        [StringLength(1)]
+        public string IsWorkDone { get; set; }
+
+        public DateTime WorkDate { get; set; }
+        public int VillageStageCode { get; set; } 
+
+
     }
 }

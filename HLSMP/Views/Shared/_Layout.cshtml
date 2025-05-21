@@ -35,25 +35,32 @@
     </style>
 </head>
 <body class="back_1">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
-            <div class="container">
-                <div class="row" style="width:100%;">
-                    <div class="col-lg-8">
-                        <div class="logo_all">
-                            <img src="~/images/logo.webp" />
-                            <div class="logo_mar">
-                                <span class="logo_text">Department of Revenue & Disaster Management</span><br />
-                                <span class="logo_text2">Government of Haryana</span>
-
+    <section class="header_11">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="header_top p-2">
+                        <a href="#">
+                            <div class="logo_head">
+                                <div>
+                                    <img src="~/images/logo.webp" width="65px" />
+                                </div>
+                                <div class="logo_text_all">
+                                    <span class="logo_text">Department of Revenue & Disaster Management</span><br />
+                                    <span style="color:#000; margin-left:15px">Government of Haryana</span>
+                                </div>
                             </div>
+
+                        </a>
+
                         </div>
-                    </div>
+                   </div>
                 </div>
                @* ================================   login/Logout ====================================*@
                 @{
                     var loginUser = Context.Session.GetString("LoginUser");
                 }
+
 
                 @if (string.IsNullOrEmpty(loginUser))
                 {
@@ -80,11 +87,17 @@
                 <div class="col-lg-2">
                     <div class="logo_all logo_2" style="float:right; margin-top:10px;">
                         <img src="~/images/logo2.png" />
+
                     </div>
+
                 </div>
+            </div>
+        </div>
+    </section>
 
         </nav>
     </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

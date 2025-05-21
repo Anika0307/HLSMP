@@ -4,18 +4,17 @@
     ViewData["Title"] = "Update Tatima Details";
 }
 
-<div class="container d-flex justify-content-center align-items-center mt-5">
+<div class="container d-flex justify-content-center align-items-center mt-3">
     <div class="card shadow" style="width: 100%; border:none;">
         <div class="header_1"><h6 class="mb-0">Update Tatima Details</h6></div>
-        <div class="card-body text-center">
+        <div class="card-body">
            @*  <form method="post" asp-controller="GISLab" asp-action="Index"> *@
             <form method="post" asp-controller="GISLab" asp-action="Index" enctype="multipart/form-data">
 
-                <div class="form-row row">
-
-                    <div class="form-group col-12 col-md-6">
-                        <label>District</label>
-                        <select id="DIS_CODE" name="DIS_CODE" class="form-control">
+                <div class="row">
+                    <div class="form-group col-12 col-md-6  mb-3">
+                        <label class="label_head">District</label>
+                        <select id="DIS_CODE" name="DIS_CODE" class="form-select">
                             <option value="">-- Select District --</option>
                             @foreach (var district in Model.DistrictList)
 
@@ -28,9 +27,9 @@
 
                     </div>
 
-                    <div class="form-group col-12 col-md-6">
-                        <label>Tehsil</label>
-                        <select id="Tehsil" name="Tehsil" class="form-control">
+                    <div class="form-group col-12 col-md-6  mb-3">
+                        <label class="label_head">Tehsil</label>
+                        <select id="Tehsil" name="Tehsil" class="form-select">
                             <option value="">-- Select Tehsil --</option>
                             @if (Model.TehsilList != null)
                             {
@@ -46,11 +45,11 @@
 
                 </div>
 
-                <div class="form-row row" >
+                <div class=" row" >
 
-                    <div class="form-group col-12 col-md-6">
-                        <label>Village</label>
-                        <select id="Village" name="Village" class="form-control">
+                    <div class="form-group col-12 col-md-6  mb-3">
+                        <label class="label_head">Village</label>
+                        <select id="Village" name="Village" class="form-select">
                             <option value="">-- Select Village --</option>
                             @if (Model.VillageList != null)
                             {
@@ -64,9 +63,10 @@
                         </select>
                     </div>
 
-                    <div class="form-group col-12 col-md-6">
-                        <label>Village Stage</label>
-                        <select id="VillageStage" name="VillageStage" class="form-control">
+                    <div class="form-group col-12 col-md-6  mb-3">
+                        <label class="label_head">Village Stage</label>
+                        <select id="VillageStage" name="VillageStage" class="form-select
+">
                             <option value="">-- Select Village Stage --</option>
                             @if (Model.VillageStageList != null)
                             {
@@ -83,14 +83,14 @@
 
                 <div class="form-row row">
 
-                    <div class="form-group col-12 col-md-6">
-                        <label asp-for="WorkDate" style="text-align:left">If Work is done, Select date of work done. If not,Then select date When Work will be done?</label>
+                    <div class="form-group col-12 col-md-6  mb-3">
+                        <label asp-for="WorkDate" style="text-align:left" class="label_head">If Work is done, Select date of work done. If not,Then select date When Work will be done?</label>
                         <input asp-for="WorkDate" class="form-control" type="date" />
                         <span asp-validation-for="WorkDate" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group col-12 col-md-6">
-                        <label>Is work done?</label><br />
+                    <div class="form-group col-12 col-md-6  mb-3">
+                        <label class="label_head">Is work done?</label><br />
 
                         <input type="radio" id="yes" name="IsWorkDone" value="true" @(Model.IsWorkDone == true ? "checked" : "") />
                         <label for="yes">Yes</label>
@@ -99,16 +99,40 @@
                     </div>
                     
                 </div>
-                <div class="form-row row">
-                    <div class="form-group">
-                        <label asp-for="UploadedFile"></label>
-                        <input asp-for="UploadedFile" type="file" class="form-control" />
+                <div class="row">
+                    <div class="form-group col-md-12">
+                        <label asp-for="UploadedFile" class="label_head"></label>
+                        <input asp-for="UploadedFile" type="file" class="form-select"  />
                         <span asp-validation-for="UploadedFile" class="text-danger"></span>
                     </div>
-                    
-               </div>
 
-                <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+                    <div class=" row">
+                        <div class="form-group col-md-4  mt-3">
+                            <label asp-for="TotalTatima" class="label_head"></label>
+                            <input asp-for="TotalTatima" class="form-control" />
+                            <span asp-validation-for="TotalTatima" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4  mt-3">
+                            <label asp-for="Completed" class="label_head"></label>
+                            <input asp-for="Completed" class="form-control" />
+                            <span asp-validation-for="Completed" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4  mt-3">
+                            <label asp-for="Pending" class="label_head"></label>
+                            <input asp-for="Pending" class="form-control" />
+                            <span asp-validation-for="Pending" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="save_btn">
+                <button type="submit">Save</button>
+                        </div>
+                </div>
+                </div>
+
             </form>
             @if (ViewBag.Message != null)
             {
