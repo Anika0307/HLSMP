@@ -1,4 +1,5 @@
-﻿using HLSMP.Data;
+﻿using HLSMP.CustomAttribute;
+using HLSMP.Data;
 using HLSMP.Models;
 using HLSMP.ViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -6,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 namespace HLSMP.Controllers
 {
+    [AuthorizeRoles(1)]
     public class GISLabController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -25,6 +28,7 @@ namespace HLSMP.Controllers
             {
                 DistrictList = GetDistricts()
             };
+
             return View(model);
         }
 
@@ -104,8 +108,6 @@ namespace HLSMP.Controllers
 
             return Ok("File uploaded successfully.");
         }
-
-
 
         //<---------------------------/ Upload Documnet Methods ---------------------->
         //<---------------------------DropDown Bind Methods---------------------->
