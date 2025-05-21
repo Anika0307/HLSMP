@@ -3,10 +3,14 @@
 @{
     ViewData["Title"] = "Dashboard";
 }
+<style>
+    table tr td{
+    font-weight:bold;
+    }
+</style>
+<h2 class="dashboard_head pb-2 mt-5">📊 District Tatima Dashboard</h2>
 
-<h2 class="mb-4 text-primary fw-bold display-6 border-bottom pb-2">📊 District Tatima Dashboard</h2>
-
-
+<div class="table_scroll">
 <table class="table table-bordered table-hover table-striped text-center align-middle mb-4" style="font-size: 1.3rem">
     <thead>
         <tr>
@@ -21,17 +25,18 @@
     <tbody>
         @foreach (var item in Model.TatimaSummaries)
         {
-            <tr>
-                <td><span class="badge bg-primary">@item.District</span></td>
-            <td><span class="badge bg-primary">@item.TotalTatimaDistrict</span></td>
-            <td><span class="badge bg-primary">@item.TatimasPending</span></td>
-            <td><span class="badge bg-primary">@item.TatimasCompleted</span></td>
+                <tr>
+                <td>@item.District</td>
+                    <td>@item.TotalTatimaDistrict</td>
+                    <td>@item.TatimasPending</td>
+                    <td>@item.TatimasCompleted</td>
 
-                <td><span class="badge bg-primary">@item.PendingAtSOI</span></td>
-                <td><span class="badge bg-primary">@item.PendingAtDepartment</span></td>
+                    <td>@item.PendingAtSOI</td>
+                    <td>@item.PendingAtDepartment</td>
 
 
         </tr>}
        
     </tbody>
 </table>
+</div>
