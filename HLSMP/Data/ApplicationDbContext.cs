@@ -29,6 +29,7 @@ namespace HLSMP.Data
         public virtual DbSet<TehMasLgdUpdated> TehMasLgdUpdateds { get; set; }
 
         public virtual DbSet<VilMa> VilMas { get; set; }
+        public virtual DbSet<StatusModel> TblStatus { get; set; }
 
         public IEnumerable<object> Tehsils { get; internal set; }
 

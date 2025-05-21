@@ -4,7 +4,6 @@ namespace HLSMP.Models
 {
     public class VillageTatima
     {
-        
         public int Dist_Code { get; set; }
 
         public int Teh_Code { get; set; }

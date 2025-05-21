@@ -99,8 +99,8 @@ namespace HLSMP.Controllers
                 return vm.Role switch
                 {
                     "GIS Lab" => RedirectToAction("Index", "GISLab"),
-                    "Service of India" => RedirectToAction("Index", "GISLab"),
-                    "Revenue Department" => RedirectToAction("Index", "GISLab"),
+                    "Service of India" => RedirectToAction("Index", "SOILogin"),
+                    "Revenue Department" => RedirectToAction("Index", "SOILogin"),
                     _ => RedirectToAction("LoginView")
                 };
 
