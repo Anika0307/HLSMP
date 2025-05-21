@@ -67,29 +67,38 @@
 				<table class="table table-bordered mt-3">
 					<thead>
 						<tr>
-							<th>Village Name</th>
-							<th>Total Tatimas</th>
-							<th>Completed Tatimas</th>
-							<th>Pending Tatimas</th>
-							<th>Documents</th>
-							<th></th>
-						</tr>
+						<th>Village Name</th>
+						<th>Total Tatimas</th>
+						<th>Completed Tatimas</th>
+						<th>Pending Tatimas</th>
+						<th>Work Completed</th>
+						<th>Documents Uploaded</th>
+						<th>Work Completion Date</th>
+						<th>Village Stage</th>
+						
+						<th></th>
+					</tr>
 					</thead>
 					<tbody>
 						@foreach (var v in Model.Villages)
 						{
-							<tr>
-								<td>@v.VillageName</td>
-								<td>@v.TotalTatima</td>
-								<td>@v.CompletedTatima</td>
-								<td>@v.PendingTatima</td>
-								<td></td>
-								<td>
-									<button type="button" class="btn btn-success btn-sm mr-2">Accept</button>
-									<button type="button" class="btn btn-danger btn-sm">Reject</button>
-								</td>
+						<tr>
+							<td>@v.VillageName</td>
+							<td>@v.TotalTatima</td>
+							<td>@v.CompletedTatima</td>
+							<td>@v.PendingTatima</td>
+							<td>@v.IsWorkDone</td>
+							<td>@v.UploadedFile</td>
+							<td>@v.WorkDate</td>
+							<td>@v.VillageStageCode</td>
 
-							</tr>
+							<td>
+								<button type="button" class="btn btn-success btn-sm mr-2">Accept</button>
+								<button type="button" class="btn btn-danger btn-sm">Reject</button>
+								<input type="text" class="form-control form-control-sm mb-1" placeholder="Enter remarks" name="Remarks" />
+							</td>
+
+						</tr>
 						}
 					</tbody>
 				</table>
