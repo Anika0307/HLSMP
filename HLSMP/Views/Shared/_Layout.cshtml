@@ -7,30 +7,31 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link href="~/fonts/googlefont.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/WebApplication1_Login_Check.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/WebApplication1_Login_Check.styles.css" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        .navbar h2{
-        color:#333;
+        .navbar h2 {
+            color: #333;
         }
 
-            .logo_all{
-            display:flex;
-            }
+        .logo_all {
+            display: flex;
+        }
 
-            .logo_mar{
-                margin-top:24px;
-            }
+        .logo_mar {
+            margin-top: 24px;
+        }
 
-            .logo_text{
-                font-size:25px;
-                margin-left: 16px;
-                font-weight:bold;
-            }
-            .logo_text2{
+        .logo_text {
+            font-size: 25px;
+            margin-left: 16px;
+            font-weight: bold;
+        }
+
+        .logo_text2 {
             margin-left: 15px;
             color: #5b5b5b;
-            }
+        }
     </style>
 </head>
 <body class="back_1">
@@ -49,14 +50,43 @@
                                     <span style="color:#000; margin-left:15px">Government of Haryana</span>
                                 </div>
                             </div>
+
                         </a>
-                    </div>
+
+                        </div>
+                   </div>
                 </div>
+               @* ================================   login/Logout ====================================*@
+                @{
+                    var loginUser = Context.Session.GetString("LoginUser");
+                }
 
-                <div class="col-md-4">
 
-                    <div class="login_btn">
-                        <a class="login_btn1" asp-controller="Login" asp-action="LoginView">Login</a>
+                @if (string.IsNullOrEmpty(loginUser))
+                {
+                    <!-- User is not logged in -->
+                    <div class="col-lg-2">
+                        <a class="btn btn-primary w-100 rounded-pill shadow-sm fw-semibold" asp-controller="Login" asp-action="LoginView">Login</a>
+                    </div>
+                    <div class="col-lg-2 d-none">
+                        <a class="btn btn-primary w-100 rounded-pill shadow-sm fw-semibold" asp-controller="Logout" asp-action="Logout">Logout</a>
+                    </div>
+                }
+                else
+                {
+                    <!-- User is logged in -->
+                    <div class="col-lg-2 d-none">
+                        <a class="btn btn-primary w-100 rounded-pill shadow-sm fw-semibold" asp-controller="Login" asp-action="LoginView">Login</a>
+                    </div>
+                    <div class="col-lg-2">
+                        <a class="btn btn-primary w-100 rounded-pill shadow-sm fw-semibold" asp-controller="Logout" asp-action="Logout">Logout</a>
+                    </div>
+                }
+
+                @* ================================ /login Logout button====================================*@
+                <div class="col-lg-2">
+                    <div class="logo_all logo_2" style="float:right; margin-top:10px;">
+                        <img src="~/images/logo2.png" />
 
                     </div>
 
@@ -64,6 +94,10 @@
             </div>
         </div>
     </section>
+
+        </nav>
+    </header>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

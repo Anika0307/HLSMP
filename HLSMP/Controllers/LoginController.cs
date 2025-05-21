@@ -16,9 +16,9 @@ namespace HLSMP.Controllers
 
         private readonly Dictionary<string, int> _roles = new()
 {
-    { "GIS Lab", 1 },
-    { "Service of India", 2 },
-    { "Revenue Department", 3 }
+            { "GIS Lab", 1 },
+            { "Service of India", 2 },
+            { "Revenue Department", 3 }
 };
         public LoginController(ApplicationDbContext context)
         {
@@ -36,9 +36,9 @@ namespace HLSMP.Controllers
             HttpContext.Session.SetString("Captcha", vm.GeneratedCaptcha);
             return View(vm);
         }
+        //===================== Login Authentication ======================//
 
         [HttpPost]
-
         public async Task<IActionResult> Login(LoginViewModel vm)
         {
             try
@@ -112,6 +112,7 @@ namespace HLSMP.Controllers
             }
         }
 
+        //===================== Save Login Logs Details  ======================//
         [HttpGet]
         public async Task SaveLogs(LoginDetail user)
         {
@@ -128,6 +129,7 @@ namespace HLSMP.Controllers
             await _context.SaveChangesAsync();
         }
 
+        //===================== Refresh and generate Captcha ======================//
         [HttpGet]
         public IActionResult RefreshCaptcha()
         {
@@ -143,26 +145,27 @@ namespace HLSMP.Controllers
             return new string(Enumerable.Repeat(chars, 5).Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-
-
+        //===================== Get IP Address ======================//
         public string GetSystemIpAddress()
         {
             try
             {
-                // Get all ip address of the machine
                 var host = Dns.GetHostEntry(Dns.GetHostName());
-
-                // Filter out only IPv4 addresses (excluding loopback addresses like 127.0.0.1)
                 var ipAddress = host.AddressList
                                      .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
 
-                // Return the first valid IPv4 address found
                 return ipAddress?.ToString() ?? throw new Exception("No IPv4 address found.");
             }
             catch (Exception ex)
             {
                 throw new Exception($"Error retrieving system IP: {ex.Message}");
             }
+        }
+
+        //===================== Access Denied  ======================//
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
     }
 }

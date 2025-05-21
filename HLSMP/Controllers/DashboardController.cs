@@ -1,4 +1,5 @@
 ﻿
+using HLSMP.CustomAttribute;
 using HLSMP.Data;
 using HLSMP.ViewModel;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HLSMP.Controllers
 {
+
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
