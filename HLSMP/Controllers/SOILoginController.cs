@@ -23,39 +23,6 @@ namespace HLSMP.Controllers
             {
                 DistrictList = GetDistricts()
             };
-            var model1 = new SOIVillages();
-            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            string query = @"
-            SELECT 
-                v.TotalTatima, 
-                v.Completed, 
-                v.Pending, 
-                v.IsWorkDone, 
-                v.UploadedDocument, 
-                v.WorkDate, 
-                r.Reason AS VillageStage,
-                vil.VIL_NAME AS VillageName
-            FROM VillageTatimas v
-            INNER JOIN TblReason_MAS r ON v.VillageStageCode = r.ReasonId
-            INNER JOIN tbl3 vil ON vil.VIL_CODE = v.VillageCode";
-
-            using SqlCommand cmd = new(query, conn);
-            conn.Open();
-            using SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                model.Villages.Add(new SOIVillages
-                {
-                    VillageName = reader["VillageName"].ToString(),
-                    TotalTatima = Convert.ToInt32(reader["TotalTatima"]),
-                    CompletedTatima = Convert.ToInt32(reader["Completed"]),
-                    PendingTatima = Convert.ToInt32(reader["Pending"]),
-                    IsWorkDone = reader["IsWorkDone"].ToString() == "Y" ? "Yes" : "No",
-                    //UploadedFile = reader["UploadedDocument"]?.,
-                    WorkDate = Convert.ToDateTime(reader["WorkDate"]),
-                    //VillageStageCode = reader["VillageStage"].ToString()
-                });
-            }
 
             return View(model);
         }
@@ -111,7 +78,7 @@ namespace HLSMP.Controllers
             cmd.Parameters.AddWithValue("@DIS_CODE", DIS_CODE);
             conn.Open();
             SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
+            
                 while (reader.Read())
                 {
                     tehsils.Add(new SelectListItem
@@ -126,33 +93,74 @@ namespace HLSMP.Controllers
         private List<SOIVillages> GetVillages(string DIS_CODE, string TEH_CODE)
         {
             var villages = new List<SOIVillages>();
+
             using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new(@"  SELECT v.VIL_NAME as [Village Name],vt.TotalTatima as [Total Tatimas], vt.Pending as [Pending Tatimas],vt.Completed as [Completed Tatimas]
-                                 FROM VillageTatimas as vt inner join VIL_MAS as v on vt.VillageCode= v.VIL_CODE 
-                                 WHERE Dist_Code = @DIS_CODE 
-                                 AND vt.Teh_Code = @TEH_CODE 
-                                 AND StatusCode = 1", conn);
+
+           
+            string query = @"
+        SELECT vil.VIL_NAME AS VillageName,v.VillageCode, v.TotalTatima, v.Completed, v.Pending, v.IsWorkDone,v.UploadedDocument, v.WorkDate, r.Reason AS VillageStage FROM VillageTatimas v LEFT JOIN TblReason_MAS r ON v.VillageStageCode = r.ReasonId INNER JOIN VIL_MAS vil ON vil.VIL_CODE = v.VillageCode WHERE Dist_Code = @DIS_CODE AND v.Teh_Code = @TEH_CODE";
+
+            using SqlCommand cmd = new(query, conn);
             cmd.Parameters.AddWithValue("@DIS_CODE", DIS_CODE);
             cmd.Parameters.AddWithValue("@TEH_CODE", TEH_CODE);
+
             conn.Open();
             using SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read())
             {
+                if (villages == null)
+                {
+                    villages = new List<SOIVillages>();
+                }
+
+                string villageCode = reader["VillageCode"] != DBNull.Value
+    ? reader["VillageCode"].ToString()
+    : string.Empty;
+
                 villages.Add(new SOIVillages
                 {
-                    VillageName = Convert.ToString(reader["Village Name"]),
-                    TotalTatima = Convert.ToInt32(reader["Total Tatimas"]),
-                    CompletedTatima = Convert.ToInt32(reader["Pending Tatimas"]),
-                    PendingTatima = Convert.ToInt32(reader["Total Tatimas"])
+                    VillageName = reader["VillageName"] != DBNull.Value
+                        ? reader["VillageName"].ToString()
+                        : null,
 
 
+
+                    TotalTatima = reader["TotalTatima"] != DBNull.Value
+                        ? Convert.ToInt32(reader["TotalTatima"])
+                        : 0,
+
+                    CompletedTatima = reader["Completed"] != DBNull.Value
+                        ? Convert.ToInt32(reader["Completed"])
+                        : 0,
+
+                    PendingTatima = reader["Pending"] != DBNull.Value
+                        ? Convert.ToInt32(reader["Pending"])
+                        : 0,
+
+                    IsWorkDone = reader["IsWorkDone"] != DBNull.Value
+                        ? (reader["IsWorkDone"].ToString() == "Y" ? "Yes" : "No")
+                        : null,
+
+                    UploadedFile = reader["UploadedDocument"] != DBNull.Value && !string.IsNullOrEmpty(villageCode)
+    ? $"/Documents/{DIS_CODE}/{TEH_CODE}/{villageCode}/{(reader["UploadedDocument"])}"
+    : null,
+
+
+
+                    WorkDate = reader["WorkDate"] != DBNull.Value
+                        ? Convert.ToDateTime(reader["WorkDate"])
+                        : (DateTime?)null,
+
+                    VillageStage = reader["VillageStage"] != DBNull.Value
+                        ? reader["VillageStage"].ToString()
+                        : null
                 });
             }
+
             return villages;
         }
 
-
-
     }
-
 }
+           
+        
