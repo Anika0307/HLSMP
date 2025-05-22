@@ -1,0 +1,37 @@
+ 
+
+ Save change to remote repo
+1. Go to git changes tab:
+2. Add comment and click -> Commit All
+3.Then Click on Push icon on top 🔝 
+
+ Create Fork repo from original repo link and Add to Visual studio :
+1. search on browser:  https://github.com/username/project-name
+2. Click on Fork -> add comment and create new fork
+3. Copy the https link of your fork repo
+4. Open git bash : browse your location where you want to create copy of the Fork repo
+5. Run this command Using your own repo link: git clone https://github.com/SoniSimran25/HLSMP.git
+
+  Create a Pull Request on GitHub :
+1. Make sure all your changes are: Committed and Pushed to your fork on GitHub 
+2. Open your forked repo -> pull request 
+3. Add Title , Description  then, Click “Create pull request”
+
+  get update code from github using visual studio for already linked project :
+1. Go to:  View → Git Repository  Or  View → Git Changes
+2. Click the Pull button (down arrow icon ⬇️).
+3. Option B: Using Git Menu -> Go to Git → Pull
+
+  steps to get latest code from original repo :
+1. click on -> View -> terminal
+2. Run Command on terminal: git remote add upstream https://github.com/ORIGINAL-USER/ORIGINAL-REPO.git
+3.git remote -v
+ if result is like : 	PS F:\HLSMP> git remote -v
+			origin  https://github.com/SoniSimran25/HLSMP.git (fetch)
+			origin  https://github.com/SoniSimran25/HLSMP.git (push)
+			upstream        https://github.com/SimranRevenue/HLSMP.git (fetch)
+			upstream        https://github.com/SimranRevenue/HLSMP.git (push)
+4. git fetch upstream
+5. git checkout master
+6. git merge upstream/master
+7. git push origin master

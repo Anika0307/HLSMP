@@ -6,16 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;  
+using Microsoft.IdentityModel.Tokens;
+using System.Data;
+using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 
 namespace HLSMP.Controllers
 {
 
-    //[AuthorizeRoles(1)]
-
-   // [AuthorizeRoles(1)]
-
+    [AuthorizeRoles(1)]
     public class GISLabController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -42,8 +42,6 @@ namespace HLSMP.Controllers
         {
             try
             {
-
-
                 model.DistrictList = GetDistricts();
                 model.TehsilList = GetTehsils(model.DIS_CODE);
                 model.VillageList = GetVillages(model.Tehsil);
@@ -80,27 +78,29 @@ namespace HLSMP.Controllers
                     Completed = model.Completed,
                     Pending = model.Pending,
                     IsWorkDone = model.IsWorkDone == true ? "Y" : "N",
-                    StatusCode = 1,
                     UploadedDocument = savedFileName,
                     WorkDate = Convert.ToDateTime(model.WorkDate),
-                    VillageStageCode = Convert.ToInt32(model.VillageStage)
+                    VillageStageCode = Convert.ToInt32(model.VillageStage),
+                    IPAddress= GetSystemIpAddress()
                 };
 
                 using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-                using SqlCommand cmd = new(@"INSERT INTO [VillageTatimas]   (Dist_Code, Teh_Code, VillageCode, TotalTatima, Completed, Pending, StatusCode, IsWorkDone, UploadedDocument, WorkDate, VillageStageCode)  VALUES  (@Dist_Code, @Teh_Code, @VillageCode, @TotalTatima, @Completed, @Pending, @StatusCode,@IsWorkDone, @UploadedDocument, @WorkDate, @VillageStageCode)", conn);
+                using SqlCommand cmd = new(@"sp_InsertTatimaDetailByGIS", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
 
                 cmd.Parameters.AddWithValue("@Dist_Code", data.Dist_Code);
                 cmd.Parameters.AddWithValue("@Teh_Code", data.Teh_Code);
                 cmd.Parameters.AddWithValue("@VillageCode", data.VillageCode);
                 cmd.Parameters.AddWithValue("@TotalTatima", data.TotalTatima);
-
                 cmd.Parameters.AddWithValue("@Completed", data.Completed);
                 cmd.Parameters.AddWithValue("@Pending", data.Pending);
                 cmd.Parameters.AddWithValue("@IsWorkDone", data.IsWorkDone);
                 cmd.Parameters.AddWithValue("@StatusCode", data.StatusCode);
                 cmd.Parameters.AddWithValue("@WorkDate", data.WorkDate);
                 cmd.Parameters.AddWithValue("@VillageStageCode", data.VillageStageCode);
-
+                cmd.Parameters.AddWithValue("@IPAddress", data.IPAddress);
                 cmd.Parameters.AddWithValue("@UploadedDocument", (object?)data.UploadedDocument ?? DBNull.Value);
 
                 conn.Open();
@@ -136,7 +136,6 @@ namespace HLSMP.Controllers
         }
         //<---------------------------/Tehsil,Village Bind Methods---------------------->
 
-
         //<---------------------------Reason Bind Methods---------------------->
         public JsonResult GetVillageStageList()
         {
@@ -161,6 +160,7 @@ namespace HLSMP.Controllers
             conn.Close();
             return Reasons;
         }
+
         //<---------------------------/Reason Bind Methods ---------------------->
        
         //<---------------------------DropDown Bind Methods---------------------->
@@ -221,8 +221,24 @@ namespace HLSMP.Controllers
             return Village;
         }
         //<---------------------------/DropDown Bind Methods------------------->
-   
 
+        //<------------------------- Get IP Address ---------------------------->
+        public string GetSystemIpAddress()
+        {
+            try
+            {
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                var ipAddress = host.AddressList
+                                     .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
+
+                return ipAddress?.ToString() ?? throw new Exception("No IPv4 address found.");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving system IP: {ex.Message}");
+            }
+        }
+       //<------------------------- Get IP Address ---------------------------->
     }
 
 }

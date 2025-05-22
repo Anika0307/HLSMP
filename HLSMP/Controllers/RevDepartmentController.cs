@@ -135,9 +135,7 @@ namespace HLSMP.Controllers
                     Teh_Code = Convert.ToInt32(reader["Teh_Code"]),
                     Vill_Code = Convert.ToInt32(reader["VillageCode"]),
                    UploadedDocument = Convert.ToString(reader["UploadedDocument"])
-    //  UploadedDocument = reader["UploadedDocument"] != DBNull.Value && !string.IsNullOrEmpty(Vill_Code)
-    //? $"/Documents/{Dist_Code}/{Teh_Code}/{Vill_Code}/{Uri.EscapeDataString(reader["UploadedDocument"].ToString())}"
-    //: null,
+    
 
                 });
             }
@@ -210,9 +208,6 @@ namespace HLSMP.Controllers
             var contentType = "application/pdf";
             return PhysicalFile(fullPath, contentType, fileName);
         }
-
-
-
 
         //===================== Get IP Address ======================//
         public string GetSystemIpAddress()

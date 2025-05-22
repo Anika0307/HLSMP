@@ -1,130 +1,140 @@
 ﻿@model HLSMP.ViewModel.SOIViewModel
 
 @{
-	ViewData["Title"] = "SOI Login";
+    ViewData["Title"] = "SOI Lab";
 }
 
-<h2>SOI Login</h2>
+<div class="container d-flex justify-content-center align-items-center mt-3">
+    <div class="card shadow" style="width: 100%; border:none;">
+        <div class="header_1"><h6 class="mb-0">Tatima Details For SOI Lab Approval</h6></div>
+        <div class="card-body">
 
-<div class="container d-flex justify-content-center align-items-center mt-lg-auto">
-	<div class="card shadow" style="width: 100%; border:none;">
-		<div class="header_1"><h6 class="mb-0">Approve Village Tatimas</h6></div>
-		<div class="card-body text-center">
+            <form method="post" asp-controller="RevDepartment" asp-action="RevDepartmentView">
+                <div class="row">
+                    <div class="form-group col-12 col-md-6  mb-3">
+                        <label>District</label>
+                        <select id="DIS_CODE" name="DIS_CODE" class="form-control">
+                            <option value="">-- Select District --</option>
+                            @foreach (var district in Model.DistrictList)
 
-			
-			<form method="post" asp-controller="SOILogin" asp-action="Index">
-				<div class="form-row d-flex align-items-end">
-					<div class="form-group col-md-6">
-						<div class="form-group">
-							<label>District</label>
-							<select id="DIS_CODE" name="DIS_CODE" class="form-control">
-								<option value="">-- Select District --</option>
-								@foreach (var district in Model.DistrictList)
+                            {
+                                <option value="@district.Value" selected="@(district.Value == Model.DIS_CODE ? "selected" : null)">
+                                    @district.Text
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group col-12 col-md-6  mb-3">
 
-								{
-									<option value="@district.Value" selected="@(district.Value == Model.DIS_CODE ? "selected" : null)">
-										@district.Text
-									</option>
-								}
-							</select>
+                        <label>Tehsil</label>
+                        <select id="TEH_CODE" name="TEH_CODE" class="form-control">
+                            <option value="">-- Select Tehsil --</option>
+                            @if (Model.TehsilList != null)
+                            {
+                                foreach (var tehsil in Model.TehsilList)
+                                {
+                                    <option value="@tehsil.Value" selected="@(tehsil.Value == Model.TEH_CODE ? "selected" : null)">
+                                        @tehsil.Text
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
 
-						</div>
-					
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="save_btn">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
+        </div>
+    </div>
+</div>
 
-						<div class="form-group col-md-5">
+@if (Model.Villages != null && Model.Villages.Any())
+{
+    <div class="card shadow-sm mt-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr class="text-center align-middle">
+                            <th>District</th>
+                            <th>Tehsil</th>
+                            <th>Village</th>
+                            <th>Village Stage</th>
+                            <th>Work Completed</th>
+                            <th>Work Completion Date</th>
+                            <th>Total Tatimas</th>
+                            <th>Completed Tatimas</th>
+                            <th>Pending Tatimas</th>
+                            <th>Documents Uploaded</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model.Villages)
+                        {
+                            <tr data-vilcode="@v.Vill_Code" data-discode="@v.Dist_Code" data-tehcode="@v.Teh_Code">
+                                <td>@v.DistrictName</td>
+                                <td>@v.TehsilName</td>
+                                <td>@v.VillageName</td>
+                                <td class="text-center">@v.VillageStage</td>
+                                <td class="text-center">@v.IsWorkDone</td>
+                                <td class="text-center">@v.WorkDate?.ToString("dd-MMM-yyyy")</td>
+                                <td class="text-center">@v.TotalTatima</td>
+                                <td class="text-center">@v.CompletedTatima</td>
+                                <td class="text-center">@v.PendingTatima</td>
+                                @* <td class="text-center">@v.UploadedFile</td> *@
+                                <td class="text-center">
+                                    <a href="@Url.Action("DownloadDocument", "RevDepartment", new {
+                                         distCode = v.Dist_Code,
+                                          tehCode = v.Teh_Code,
+                                         villCode = v.Vill_Code,
+                                         fileName = Uri.EscapeDataString(v.UploadedDocument)
+                                         })"
+                                       class="btn btn-sm btn-outline-primary" target="_blank">Download</a>
 
-					<label>Tehsil</label>
-					<select id="TEH_CODE" name="TEH_CODE" class="form-control">
-						<option value="">-- Select Tehsil --</option>
-						@if (Model.TehsilList != null)
-						{
-							foreach (var tehsil in Model.TehsilList)
-							{
-								<option value="@tehsil.Value" selected="@(tehsil.Value == Model.TEH_CODE ? "selected" : null)">
-									@tehsil.Text
-								</option>
-							}
-						}
-					</select>
-				</div>
-					</div>
-				</div>
+                                    @*    @if (!string.IsNullOrEmpty(v.UploadedDocument))
+                            {
+                            var downloadUrl = Url.Content($"~/Documents/{v.Dist_Code}/{v.Teh_Code}/{v.Vill_Code}/{v.UploadedDocument}");
+                            <a href="@downloadUrl" class="btn btn-sm btn-outline-primary" download target="_blank">
+                            Download
+                            </a>
+                            }
+                            else
+                            {
+                            <span class="text-muted">No Document</span>
+                            } *@
+                                </td>
 
+                                <td class="text-center">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Enter remarks" name="Remarks" required />
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex flex-column align-items-center gap-1">
+                                        <button type="button" class="btn btn-sm btn-success w-100" data-action="accept">Accept</button>
+                                        <button type="button" class="btn btn-sm btn-danger w-100" data-action="reject">Reject</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info mt-4">No villages found.</div>
+}
 
-				<div>
-					<button type="submit" class="btn btn-primary">Search</button>
-				</div>
-			</form>
-
-		</div>
-			
-
-
-			@if (Model.Villages != null && Model.Villages.Any())
-			{
-				<table class="table table-bordered mt-3">
-					<thead>
-						<tr>
-						<th>Village Name</th>
-						<th>Total Tatimas</th>
-						<th>Completed Tatimas</th>
-						<th>Pending Tatimas</th>
-						<th>Work Completed</th>
-						<th>Documents Uploaded</th>
-						<th>Work Completion Date</th>
-						<th>Village Stage</th>
-						
-						<th></th>
-					</tr>
-					</thead>
-					<tbody>
-						@foreach (var v in Model.Villages)
-						{
-						<tr>
-							<td>@v.VillageName</td>
-							<td>@v.TotalTatima</td>
-							<td>@v.CompletedTatima</td>
-							<td>@v.PendingTatima</td>
-							<td>@v.IsWorkDone</td>
-
-							<td>
-								@if (!string.IsNullOrEmpty(v.UploadedFile))
-								{
-									<a href="@Url.Content(v.UploadedFile)" download>Uploaded Download</a>
-
-								}
-								else
-								{
-									<span>No document uploaded</span>
-								}
-
-							</td>
-
-							<td>@v.UploadedDocument</td>
-
-							<td>@v.WorkDate</td>
-							<td>@v.VillageStage</td>
-
-							<td>
-								<button type="button" class="btn btn-success btn-sm mr-2">Accept</button>
-								<button type="button" class="btn btn-danger btn-sm">Reject</button>
-								<input type="text" class="form-control form-control-sm mt-1" placeholder="Enter remarks" name="Remarks" />
-							</td>
-
-						</tr>
-						}
-					</tbody>
-				</table>
-			}
-
-
-			</<div>
-			</div>
-		</div>
-	</div>
-</<div>
-	
 
 
 
@@ -135,7 +145,7 @@
             $('#DIS_CODE').change(function () {
                 var DIS_CODE = $(this).val();
                 $.ajax({
-                    url: '@Url.Action("GetTehsilsByDistrict", "SOILogin")',
+                    url: '@Url.Action("GetTehsilsByDistrict", "RevDepartment")',
                     type: 'POST',
                     data: { DIS_CODE: DIS_CODE },
                     success: function (data) {
@@ -149,6 +159,46 @@
                 });
             });
         });
+
+        // Accept/Reject button click
+        $('.action-btn').click(function () {
+            var button = $(this);
+            var row = button.closest('tr');
+            var villCode = row.data('vilcode');
+            var disCode = row.data('discode');
+            var tehCode = row.data('tehcode');
+            var remarks = row.find('.remarks-input').val();
+            var action = button.data('action');
+
+            if (!remarks) {
+                alert("Please enter remarks before " + action + "ing.");
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("UpdateTatimaStatus", "RevDepartment")',
+                type: 'POST',
+                data: {
+                    villCode: villCode,
+                    disCode: disCode,
+                    tehCode: tehCode,
+                    remarks: remarks,
+                    action: action
+                },
+                success: function (response) {
+                    if (response.success) {
+                        button.closest('td').html('<span class="text-success">' + action.charAt(0).toUpperCase() + action.slice(1) + 'ed</span>');
+                        row.find('.remarks-input').prop('disabled', true);
+                    } else {
+                        alert("Failed to update. Try again.");
+                    }
+                },
+                error: function () {
+                    alert("Server error. Please try again later.");
+                }
+            });
+        });
+                });
     </script>
 }
 
