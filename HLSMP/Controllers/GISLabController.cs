@@ -11,7 +11,11 @@ using System.Text.Json;
 
 namespace HLSMP.Controllers
 {
+
+    //[AuthorizeRoles(1)]
+
    // [AuthorizeRoles(1)]
+
     public class GISLabController : Controller
     {
         private readonly IConfiguration _configuration;
