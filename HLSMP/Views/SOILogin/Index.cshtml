@@ -87,14 +87,29 @@
 							<td>@v.CompletedTatima</td>
 							<td>@v.PendingTatima</td>
 							<td>@v.IsWorkDone</td>
+
+							<td>
+								@if (!string.IsNullOrEmpty(v.UploadedFile))
+								{
+									<a href="@Url.Content(v.UploadedFile)" download>Uploaded Download</a>
+
+								}
+								else
+								{
+									<span>No document uploaded</span>
+								}
+
+							</td>
+
 							<td>@v.UploadedDocument</td>
+
 							<td>@v.WorkDate</td>
-							<td>@v.VillageStageCode</td>
+							<td>@v.VillageStage</td>
 
 							<td>
 								<button type="button" class="btn btn-success btn-sm mr-2">Accept</button>
 								<button type="button" class="btn btn-danger btn-sm">Reject</button>
-								<input type="text" class="form-control form-control-sm mb-1" placeholder="Enter remarks" name="Remarks" />
+								<input type="text" class="form-control form-control-sm mt-1" placeholder="Enter remarks" name="Remarks" />
 							</td>
 
 						</tr>
