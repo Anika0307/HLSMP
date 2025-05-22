@@ -11,7 +11,11 @@ using System.Text.Json;
 
 namespace HLSMP.Controllers
 {
+
     //[AuthorizeRoles(1)]
+
+   // [AuthorizeRoles(1)]
+
     public class GISLabController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -32,80 +36,92 @@ namespace HLSMP.Controllers
             return View(model);
         }
 
-        //<---------------------------District,Tehsil,Village Bind Methods---------------------->
+        //<---------------------------Save Method----------------------->
         [HttpPost]
         public async Task<IActionResult> Index(GISViewModel model)
         {
-            model.DistrictList = GetDistricts();
-            model.TehsilList = GetTehsils(model.DIS_CODE);
-            model.VillageList = GetVillages(model.Tehsil);
-            model.VillageStageList = GetVillStageList();
-
-            if (!ModelState.IsValid)
+            try
             {
-                return View(model);
-            }
-            
-            string rootPath = Path.Combine(_env.WebRootPath, "Documents", model.DIS_CODE, model.Tehsil, model.Village);
-            if (!Directory.Exists(rootPath))
-                Directory.CreateDirectory(rootPath);
 
-            string savedFileName = null;
-            if (model.UploadedFile != null && model.UploadedFile.Length > 0)
-            {
-                savedFileName = Path.GetFileName(model.UploadedFile.FileName);
-                string fullPath = Path.Combine(rootPath, savedFileName);
 
-                using (var stream = new FileStream(fullPath, FileMode.Create))
+                model.DistrictList = GetDistricts();
+                model.TehsilList = GetTehsils(model.DIS_CODE);
+                model.VillageList = GetVillages(model.Tehsil);
+                model.VillageStageList = GetVillStageList();
+
+                if (!ModelState.IsValid)
                 {
-                    await model.UploadedFile.CopyToAsync(stream);
+                    return View(model);
                 }
+
+                string rootPath = Path.Combine(_env.WebRootPath, "Documents", model.DIS_CODE, model.Tehsil, model.Village);
+                if (!Directory.Exists(rootPath))
+                    Directory.CreateDirectory(rootPath);
+
+                string savedFileName = null;
+                if (model.UploadedFile != null && model.UploadedFile.Length > 0)
+                {
+                    savedFileName = Path.GetFileName(model.UploadedFile.FileName);
+                    string fullPath = Path.Combine(rootPath, savedFileName);
+
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await model.UploadedFile.CopyToAsync(stream);
+                    }
+                }
+
+                // Save to database
+                var data = new VillageTatima
+                {
+                    Dist_Code = int.Parse(model.DIS_CODE),
+                    Teh_Code = int.Parse(model.Tehsil),
+                    VillageCode = int.Parse(model.Village),
+                    TotalTatima = model.TotalTatima,
+                    Completed = model.Completed,
+                    Pending = model.Pending,
+                    IsWorkDone = model.IsWorkDone == true ? "Y" : "N",
+                    StatusCode = 1,
+                    UploadedDocument = savedFileName,
+                    WorkDate = Convert.ToDateTime(model.WorkDate),
+                    VillageStageCode = Convert.ToInt32(model.VillageStage)
+                };
+
+                using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                using SqlCommand cmd = new(@"INSERT INTO [VillageTatimas]   (Dist_Code, Teh_Code, VillageCode, TotalTatima, Completed, Pending, StatusCode, IsWorkDone, UploadedDocument, WorkDate, VillageStageCode)  VALUES  (@Dist_Code, @Teh_Code, @VillageCode, @TotalTatima, @Completed, @Pending, @StatusCode,@IsWorkDone, @UploadedDocument, @WorkDate, @VillageStageCode)", conn);
+
+                cmd.Parameters.AddWithValue("@Dist_Code", data.Dist_Code);
+                cmd.Parameters.AddWithValue("@Teh_Code", data.Teh_Code);
+                cmd.Parameters.AddWithValue("@VillageCode", data.VillageCode);
+                cmd.Parameters.AddWithValue("@TotalTatima", data.TotalTatima);
+
+                cmd.Parameters.AddWithValue("@Completed", data.Completed);
+                cmd.Parameters.AddWithValue("@Pending", data.Pending);
+                cmd.Parameters.AddWithValue("@IsWorkDone", data.IsWorkDone);
+                cmd.Parameters.AddWithValue("@StatusCode", data.StatusCode);
+                cmd.Parameters.AddWithValue("@WorkDate", data.WorkDate);
+                cmd.Parameters.AddWithValue("@VillageStageCode", data.VillageStageCode);
+
+                cmd.Parameters.AddWithValue("@UploadedDocument", (object?)data.UploadedDocument ?? DBNull.Value);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+
+                TempData["Message"] = "Tatima details saved successfully.";
+                TempData["Success"] = "true";
+                return RedirectToAction("Index");
             }
-
-            // Save to database
-            var data = new VillageTatima
+            catch (Exception ex)
             {
-                Dist_Code = int.Parse(model.DIS_CODE),
-                Teh_Code = int.Parse(model.Tehsil),
-                VillageCode = int.Parse(model.Village),
-                TotalTatima = model.TotalTatima,
-                Completed = model.Completed,
-                Pending = model.Pending,
-                IsWorkDone = model.IsWorkDone == true ? "Y" : "N",
-                StatusCode= 1, 
-                UploadedDocument = savedFileName,
-                WorkDate = Convert.ToDateTime(model.WorkDate),
-                VillageStageCode = Convert.ToInt32(model.VillageStage)
-            };
-
-            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new(@"INSERT INTO [VillageTatimas]   (Dist_Code, Teh_Code, VillageCode, TotalTatima, Completed, Pending, StatusCode, IsWorkDone, UploadedDocument, WorkDate, VillageStageCode)  VALUES  (@Dist_Code, @Teh_Code, @VillageCode, @TotalTatima, @Completed, @Pending, @StatusCode,@IsWorkDone, @UploadedDocument, @WorkDate, @VillageStageCode)", conn);
-
-            cmd.Parameters.AddWithValue("@Dist_Code", data.Dist_Code);
-            cmd.Parameters.AddWithValue("@Teh_Code", data.Teh_Code);
-            cmd.Parameters.AddWithValue("@VillageCode", data.VillageCode);
-            cmd.Parameters.AddWithValue("@TotalTatima", data.TotalTatima);
-            
-            cmd.Parameters.AddWithValue("@Completed", data.Completed);
-            cmd.Parameters.AddWithValue("@Pending", data.Pending);
-            cmd.Parameters.AddWithValue("@IsWorkDone", data.IsWorkDone);
-            cmd.Parameters.AddWithValue("@StatusCode", data.StatusCode);
-            cmd.Parameters.AddWithValue("@WorkDate", data.WorkDate);
-            cmd.Parameters.AddWithValue("@VillageStageCode", data.VillageStageCode);
-
-            cmd.Parameters.AddWithValue("@UploadedDocument", (object?)data.UploadedDocument ?? DBNull.Value);
-
-            conn.Open();
-            cmd.ExecuteNonQuery();
-            conn.Close();
-
-            TempData["Message"] = "Tatima details saved successfully.";
-            return RedirectToAction("Index");
-
+                TempData["AlertMessage"] = "Exception: Enter Details";
+                return RedirectToAction("Index", model);
+            }
 
         }
+        //<---------------------------/Save Method---------------------->
 
-            [HttpPost]
+        //<---------------------------Tehsil,Village Bind Methods---------------------->
+        [HttpPost]
         public JsonResult GetTehsilsByDistrict(string DIS_CODE)
         {
             var tehsils = GetTehsils(DIS_CODE);
@@ -118,7 +134,7 @@ namespace HLSMP.Controllers
             var Village = GetVillages(TehCode);
             return Json(Village);
         }
-        //<---------------------------/District,Tehsil,Village Bind Methods---------------------->
+        //<---------------------------/Tehsil,Village Bind Methods---------------------->
 
 
         //<---------------------------Reason Bind Methods---------------------->
@@ -146,34 +162,7 @@ namespace HLSMP.Controllers
             return Reasons;
         }
         //<---------------------------/Reason Bind Methods ---------------------->
-        //<--------------------------- Upload Documnet Methods ---------------------->
- 
-        //[HttpPost]
-        //public async Task<IActionResult> UploadDocument(GISViewModel model)
-        //{
-        //    if (model.UploadedFile == null || model.UploadedFile.Length == 0)
-        //        return BadRequest("No file uploaded.");
-
-        //    string rootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Documents");
-
-        //    string folderPath = Path.Combine(rootPath, model.DIS_CODE, model.Tehsil, model.Village);
-
-        //    if (!Directory.Exists(folderPath))
-        //    {
-        //        Directory.CreateDirectory(folderPath);
-        //    }
-
-        //    string filePath = Path.Combine(folderPath, Path.GetFileName(model.UploadedFile.FileName));
-
-        //    using (var stream = new FileStream(filePath, FileMode.Create))
-        //    {
-        //        await model.UploadedFile.CopyToAsync(stream);
-        //    }
-
-        //    return Ok("File uploaded successfully.");
-        //}
-
-        //<---------------------------/ Upload Documnet Methods ---------------------->
+       
         //<---------------------------DropDown Bind Methods---------------------->
         private List<SelectListItem> GetDistricts()
         {
@@ -232,13 +221,8 @@ namespace HLSMP.Controllers
             return Village;
         }
         //<---------------------------/DropDown Bind Methods------------------->
+   
 
-        //<---------------------------Save Method----------------------->
-      public IActionResult Save(GISViewModel GISvm)
-        {
-            return View();
-        }
-        //<---------------------------/Save Method---------------------->
     }
 
 }
