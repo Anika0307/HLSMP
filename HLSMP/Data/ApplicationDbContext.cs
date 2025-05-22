@@ -33,7 +33,6 @@ namespace HLSMP.Data
         public virtual DbSet<VilMa> VilMas { get; set; }
         public virtual DbSet<StatusModel> TblStatus { get; set; }
 
-
         public IEnumerable<object> Tehsils { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

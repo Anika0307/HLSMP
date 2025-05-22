@@ -22,7 +22,6 @@
 								@foreach (var district in Model.DistrictList)
 
 								{
-									@* var selected = district.Value == Model.DIS_CODE ? "selected" : ""; *@
 									<option value="@district.Value" selected="@(district.Value == Model.DIS_CODE ? "selected" : null)">
 										@district.Text
 									</option>
