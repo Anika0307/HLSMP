@@ -100,7 +100,7 @@ namespace HLSMP.Controllers
                 {
                     "GIS Lab" => RedirectToAction("Index", "GISLab"),
                     "Service of India" => RedirectToAction("Index", "SOILogin"),
-                    "Revenue Department" => RedirectToAction("Index", "SOILogin"),
+                    "Revenue Department" => RedirectToAction("RevDepartmentView", "RevDepartment"),
                     _ => RedirectToAction("LoginView")
                 };
 

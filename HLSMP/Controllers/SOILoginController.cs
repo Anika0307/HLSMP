@@ -24,6 +24,28 @@ namespace HLSMP.Controllers
                 DistrictList = GetDistricts()
             };
 
+            var model1 = new SOIVillages();
+            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+            string query = @" SELECT vil.VIL_NAME AS  VillageName,v.TotalTatima,v.Completed,v.Pending,v.IsWorkDone,v.UploadedDocument,v.WorkDate,r.Reason AS VillageStage from   VillageTatimas v left JOIN TblReason_MAS r ON v.VillageStageCode = r.ReasonId INNER JOIN VIL_MAS vil ON vil.VIL_CODE = v.VillageCode";
+
+            using SqlCommand cmd = new(query, conn);
+            conn.Open();
+            using SqlDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                model.Villages.Add(new SOIVillages
+                {
+                    VillageName = reader["VillageName"].ToString(),
+                    TotalTatima = Convert.ToInt32(reader["TotalTatima"]),
+                    CompletedTatima = Convert.ToInt32(reader["Completed"]),
+                    PendingTatima = Convert.ToInt32(reader["Pending"]),
+                    IsWorkDone = reader["IsWorkDone"].ToString() == "Y" ? "Yes" : "No",
+                    //UploadedFile = reader["UploadedDocument"]?.,
+                    WorkDate = Convert.ToDateTime(reader["WorkDate"]),
+                    //VillageStageCode = reader["VillageStage"].ToString()
+                });
+            }
+
             return View(model);
         }
 
