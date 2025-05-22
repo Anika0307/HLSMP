@@ -10,6 +10,8 @@ namespace HLSMP.Data
         {
 
         }
+
+
         public DbSet<TatimaSummary> TatimaSummarys { get; set; }
         public DbSet<VillageTatima> VillageTatimas { get; set; }
 
@@ -30,6 +32,10 @@ namespace HLSMP.Data
 
         public virtual DbSet<VilMa> VilMas { get; set; }
         public virtual DbSet<StatusModel> TblStatus { get; set; }
+
+
+
+
 
         public IEnumerable<object> Tehsils { get; internal set; }
 

@@ -6,12 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;  
 using System.Text.Json;
 
 namespace HLSMP.Controllers
 {
+
+    //[AuthorizeRoles(1)]
+
    // [AuthorizeRoles(1)]
+
     public class GISLabController : Controller
     {
         private readonly IConfiguration _configuration;

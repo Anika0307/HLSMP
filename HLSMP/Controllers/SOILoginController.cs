@@ -23,6 +23,40 @@ namespace HLSMP.Controllers
             {
                 DistrictList = GetDistricts()
             };
+            var model1 = new SOIVillages();
+            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+            string query = @"
+            SELECT 
+                v.TotalTatima, 
+                v.Completed, 
+                v.Pending, 
+                v.IsWorkDone, 
+                v.UploadedDocument, 
+                v.WorkDate, 
+                r.Reason AS VillageStage,
+                vil.VIL_NAME AS VillageName
+            FROM VillageTatimas v
+            INNER JOIN TblReason_MAS r ON v.VillageStageCode = r.ReasonId
+            INNER JOIN tbl3 vil ON vil.VIL_CODE = v.VillageCode";
+
+            using SqlCommand cmd = new(query, conn);
+            conn.Open();
+            using SqlDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                model.Villages.Add(new SOIVillages
+                {
+                    VillageName = reader["VillageName"].ToString(),
+                    TotalTatima = Convert.ToInt32(reader["TotalTatima"]),
+                    CompletedTatima = Convert.ToInt32(reader["Completed"]),
+                    PendingTatima = Convert.ToInt32(reader["Pending"]),
+                    IsWorkDone = reader["IsWorkDone"].ToString() == "Y" ? "Yes" : "No",
+                    //UploadedFile = reader["UploadedDocument"]?.,
+                    WorkDate = Convert.ToDateTime(reader["WorkDate"]),
+                    //VillageStageCode = reader["VillageStage"].ToString()
+                });
+            }
+
             return View(model);
         }
 
@@ -97,7 +131,7 @@ namespace HLSMP.Controllers
                                  FROM VillageTatimas as vt inner join VIL_MAS as v on vt.VillageCode= v.VIL_CODE 
                                  WHERE Dist_Code = @DIS_CODE 
                                  AND vt.Teh_Code = @TEH_CODE 
-                                 AND StatusCode = 2", conn);
+                                 AND StatusCode = 1", conn);
             cmd.Parameters.AddWithValue("@DIS_CODE", DIS_CODE);
             cmd.Parameters.AddWithValue("@TEH_CODE", TEH_CODE);
             conn.Open();
