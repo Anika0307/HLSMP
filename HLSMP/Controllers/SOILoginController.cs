@@ -25,19 +25,7 @@ namespace HLSMP.Controllers
             };
             var model1 = new SOIVillages();
             using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            string query = @"
-            SELECT 
-                v.TotalTatima, 
-                v.Completed, 
-                v.Pending, 
-                v.IsWorkDone, 
-                v.UploadedDocument, 
-                v.WorkDate, 
-                r.Reason AS VillageStage,
-                vil.VIL_NAME AS VillageName
-            FROM VillageTatimas v
-            INNER JOIN TblReason_MAS r ON v.VillageStageCode = r.ReasonId
-            INNER JOIN tbl3 vil ON vil.VIL_CODE = v.VillageCode";
+            string query = @" SELECT vil.VIL_NAME AS  VillageName,v.TotalTatima,v.Completed,v.Pending,v.IsWorkDone,v.UploadedDocument,v.WorkDate,r.Reason AS VillageStage from   VillageTatimas v left JOIN TblReason_MAS r ON v.VillageStageCode = r.ReasonId INNER JOIN VIL_MAS vil ON vil.VIL_CODE = v.VillageCode";
 
             using SqlCommand cmd = new(query, conn);
             conn.Open();

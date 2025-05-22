@@ -23,9 +23,14 @@ namespace HLSMP.Models
 
         [StringLength(1)]
         public string IsWorkDone { get; set; }
+        public string Remarks { get; set; }
 
         public DateTime WorkDate { get; set; }
-        public int VillageStageCode { get; set; } 
+        public int VillageStageCode { get; set; }
+        [StringLength(100)]
+        public string IPAddress { get; set; } 
+        public DateTime CreatedDate { get; set; } 
+        public DateTime UpdatedDate { get; set; } 
 
 
     }
