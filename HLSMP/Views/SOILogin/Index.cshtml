@@ -13,7 +13,7 @@
                 <div class="row">
                     <div class="form-group col-12 col-md-6  mb-3">
                         <label>District</label>
-                        <select id="DIS_CODE" name="DIS_CODE" class="form-control">
+                        <select id="DIS_CODE" name="DIS_CODE" class="form-select">
                             <option value="">-- Select District --</option>
                             @foreach (var district in Model.DistrictList)
 
@@ -27,7 +27,7 @@
                     <div class="form-group col-12 col-md-6  mb-3">
 
                         <label>Tehsil</label>
-                        <select id="TEH_CODE" name="TEH_CODE" class="form-control">
+                        <select id="TEH_CODE" name="TEH_CODE" class="form-select">
                             <option value="">-- Select Tehsil --</option>
                             @if (Model.TehsilList != null)
                             {
@@ -45,7 +45,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="save_btn">
-                            <button type="submit" class="btn btn-primary">Search</button>
+                            <button type="submit">Search</button>
                         </div>
                     </div>
                 </div>
@@ -98,7 +98,7 @@
                                          villCode = v.Vill_Code,
                                          fileName = Uri.EscapeDataString(v.UploadedDocument)
                                          })"
-                                       class="btn btn-sm btn-outline-primary" target="_blank">Download</a>
+                                       class="btn_1" target="_blank">Download</a>
 
                                   
                                 </td>
@@ -108,7 +108,7 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex flex-column align-items-center gap-1">
-                                        <button type="button" class="btn btn-sm btn-success w-100" data-action="accept">Accept</button>
+                                        <button type="button" class="btn btn-sm btn_1 w-100" data-action="accept">Accept</button>
                                         <button type="button" class="btn btn-sm btn-danger w-100" data-action="reject">Reject</button>
                                     </div>
                                 </td>

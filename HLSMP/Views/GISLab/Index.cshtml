@@ -90,12 +90,14 @@
                     </div>
 
                     <div class="form-group col-12 col-md-6  mb-3">
-                        <label class="label_head">Is work done?</label><br />
-
-                        <input type="radio" id="yes" name="IsWorkDone" value="true" @(Model.IsWorkDone == true ? "checked" : "") />
-                        <label for="yes">Yes</label>
-                        <input type="radio" id="no" name="IsWorkDone" value="false" @(Model.IsWorkDone == false ? "checked" : "") />
-                        <label for="no">No</label>
+                        <label class="label_head">Is work done?</label>
+                        <div class="switch">
+                            <input type="radio" class="switch-input" id="yes" name="IsWorkDone" value="true" @(Model.IsWorkDone == true ? "checked" : "")>
+                            <label for="yes" class="switch-label switch-label-off">Yes</label>
+                            <input type="radio" class="switch-input" id="no" name="IsWorkDone" value="false" @(Model.IsWorkDone == false ? "checked" : "")>
+                            <label for="no" class="switch-label switch-label-on">No</label>
+                            <span class="switch-selection"></span>
+                        </div>
                     </div>
                     
                 </div>
