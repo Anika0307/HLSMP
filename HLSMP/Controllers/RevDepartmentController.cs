@@ -25,6 +25,7 @@ namespace HLSMP.Controllers
             var model = new SOIViewModel
             {
                 DistrictList = GetDistricts(),
+                TehsilList = new List<SelectListItem>(),
                 Villages = new List<SOIVillages>()
             };
             string DIS_CODE = "", TEH_CODE = "";

@@ -2,6 +2,7 @@
 using HLSMP.Data;
 using HLSMP.Models;
 using HLSMP.ViewModel;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
@@ -67,6 +68,19 @@ namespace HLSMP.Controllers
                         await model.UploadedFile.CopyToAsync(stream);
                     }
                 }
+                //<================Get Details from session=======>
+                var userJson = HttpContext.Session.GetString("LoginUser");
+                string userName = "";
+                string IPAddress = "";
+                if (!string.IsNullOrEmpty(userJson))
+                {
+                    var user = JsonSerializer.Deserialize<LoginLog>(userJson);
+                    if (user != null)
+                    {
+                        userName = user.UserName;
+                        IPAddress = user.IPAddress;
+                    }
+                }
 
                 // Save to database
                 var data = new VillageTatima
@@ -81,7 +95,8 @@ namespace HLSMP.Controllers
                     UploadedDocument = savedFileName,
                     WorkDate = Convert.ToDateTime(model.WorkDate),
                     VillageStageCode = Convert.ToInt32(model.VillageStage),
-                    IPAddress= GetSystemIpAddress()
+                    IPAddress= IPAddress,
+                    CreatedBy = userName
                 };
 
                 using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
@@ -97,10 +112,10 @@ namespace HLSMP.Controllers
                 cmd.Parameters.AddWithValue("@Completed", data.Completed);
                 cmd.Parameters.AddWithValue("@Pending", data.Pending);
                 cmd.Parameters.AddWithValue("@IsWorkDone", data.IsWorkDone);
-                cmd.Parameters.AddWithValue("@StatusCode", data.StatusCode);
                 cmd.Parameters.AddWithValue("@WorkDate", data.WorkDate);
                 cmd.Parameters.AddWithValue("@VillageStageCode", data.VillageStageCode);
                 cmd.Parameters.AddWithValue("@IPAddress", data.IPAddress);
+                cmd.Parameters.AddWithValue("@CreatedBy", data.CreatedBy);
                 cmd.Parameters.AddWithValue("@UploadedDocument", (object?)data.UploadedDocument ?? DBNull.Value);
 
                 conn.Open();
@@ -222,23 +237,6 @@ namespace HLSMP.Controllers
         }
         //<---------------------------/DropDown Bind Methods------------------->
 
-        //<------------------------- Get IP Address ---------------------------->
-        public string GetSystemIpAddress()
-        {
-            try
-            {
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                var ipAddress = host.AddressList
-                                     .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-
-                return ipAddress?.ToString() ?? throw new Exception("No IPv4 address found.");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error retrieving system IP: {ex.Message}");
-            }
-        }
-       //<------------------------- Get IP Address ---------------------------->
     }
 
 }

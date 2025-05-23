@@ -92,8 +92,7 @@ namespace HLSMP.Controllers
 
                 TempData["Message"] = "Login successful!";
                 await SaveLogs(user);
-                var userJson = JsonSerializer.Serialize(user);
-                HttpContext.Session.SetString("LoginUser", userJson);
+             
 
                 // ✅ Role-based redirection
                 return vm.Role switch
@@ -127,6 +126,14 @@ namespace HLSMP.Controllers
 
             _context.LoginLogs.Add(log);
             await _context.SaveChangesAsync();
+
+            SaveSession(log);
+
+        }
+        private void SaveSession(LoginLog log)
+        {
+            var userJson = JsonSerializer.Serialize(log);
+            HttpContext.Session.SetString("LoginUser", userJson);
         }
 
         //===================== Refresh and generate Captcha ======================//

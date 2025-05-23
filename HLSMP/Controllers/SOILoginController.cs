@@ -8,6 +8,7 @@ using HLSMP.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Net.Sockets;
 using System.Net;
+using System.Text.Json;
 
 namespace HLSMP.Controllers
 {
@@ -27,6 +28,7 @@ namespace HLSMP.Controllers
             var model = new SOIViewModel
             {
                 DistrictList = GetDistricts(),
+                TehsilList = new List<SelectListItem>(),
                 Villages = new List<SOIVillages>()
             };
             string DIS_CODE = "", TEH_CODE = "";
@@ -95,7 +97,7 @@ namespace HLSMP.Controllers
             var villages = new List<SOIVillages>();
 
             using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new("sp_GetVlgTatimasForDepartment", conn)
+            using SqlCommand cmd = new("sp_GetVlgTatimasSOI", conn)
             {
                 CommandType = CommandType.StoredProcedure
             };
@@ -135,56 +137,56 @@ namespace HLSMP.Controllers
                     Vill_Code = Convert.ToInt32(reader["VillageCode"]),
                     UploadedDocument = Convert.ToString(reader["UploadedDocument"])
 
-
                 });
             }
 
             return villages;
         }
-        //===================== Get IP Address ======================//
-        public string GetSystemIpAddress()
-        {
-            try
-            {
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                var ipAddress = host.AddressList
-                                     .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-
-                return ipAddress?.ToString() ?? throw new Exception("No IPv4 address found.");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error retrieving system IP: {ex.Message}");
-            }
-        }
+       
 
         //====================== UpdateTatimaStatus=======================//
         [HttpPost]
         public IActionResult UpdateTatimaStatus(int disCode, int tehCode, int villCode, string remarks, string action)
         {
+            var userJson = HttpContext.Session.GetString("LoginUser");
+            string userName = "";
+            string IPAddress = "";
+            if (!string.IsNullOrEmpty(userJson))
+            {
+                var user = JsonSerializer.Deserialize<LoginLog>(userJson);
+                if (user != null)
+                {
+                    userName = user.UserName;
+                    IPAddress = user.IPAddress;
+                }
+            }
+
             string Action = action.Equals("accept", StringComparison.OrdinalIgnoreCase) ? "Accepted" : "Rejected";
             var data = new VillageTatima
             {
                 Dist_Code = disCode,
                 Teh_Code = tehCode,
                 VillageCode = villCode,
-                StatusCode = (Action == "Accepted") ? 6 : 7,
+                StatusCode = (Action == "Accepted") ? 3 : 4,
                 Remarks = remarks,
-                IPAddress = GetSystemIpAddress()
+                IPAddress = IPAddress,
+                UpdatedBy = Convert.ToString(userName)
             };
             int rowsAffected = 0;
 
             using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new(@"sp_UpdateStatusByRevDepartment", conn)
+            using SqlCommand cmd = new(@"sp_UpdateStatusBySOI", conn)
             {
                 CommandType = CommandType.StoredProcedure
             };
+ 
             cmd.Parameters.AddWithValue("@DIS_CODE", data.Dist_Code);
             cmd.Parameters.AddWithValue("@TEH_CODE", data.Teh_Code);
             cmd.Parameters.AddWithValue("@Vil_CODE", data.VillageCode);
-            cmd.Parameters.AddWithValue("@TEH_CODE", data.StatusCode);
+            cmd.Parameters.AddWithValue("@StatusCode", data.StatusCode);
             cmd.Parameters.AddWithValue("@IPAddress", data.IPAddress);
             cmd.Parameters.AddWithValue("@Remarks", data.Remarks);
+            cmd.Parameters.AddWithValue("@UpdatedBy", data.UpdatedBy);
             conn.Open();
             cmd.ExecuteNonQuery();
             conn.Close();
@@ -201,7 +203,6 @@ namespace HLSMP.Controllers
         {
             fileName = Uri.UnescapeDataString(fileName);
 
-            // Fix: Pad values to match actual folder names
             var paddedDistCode = distCode.PadLeft(2, '0');   // e.g., 3 → 03
             var paddedTehCode = tehCode.PadLeft(3, '0');     // e.g., 140 stays 140
             var paddedVillCode = villCode.PadLeft(5, '0');   // e.g., 1385 → 01385

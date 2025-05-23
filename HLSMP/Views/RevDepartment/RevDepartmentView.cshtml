@@ -90,7 +90,6 @@
                                 <td class="text-center">@v.TotalTatima</td>
                                 <td class="text-center">@v.CompletedTatima</td>
                                 <td class="text-center">@v.PendingTatima</td>
-                                @* <td class="text-center">@v.UploadedFile</td> *@
                                 <td class="text-center">
                                     <a href="@Url.Action("DownloadDocument", "RevDepartment", new {
                                          distCode = v.Dist_Code,
@@ -99,18 +98,6 @@
                                          fileName = Uri.EscapeDataString(v.UploadedDocument)
                                          })"
                                        class="btn btn-sm btn-outline-primary" target="_blank">Download</a>
-
-                                    @*    @if (!string.IsNullOrEmpty(v.UploadedDocument))
-                                    {
-                                        var downloadUrl = Url.Content($"~/Documents/{v.Dist_Code}/{v.Teh_Code}/{v.Vill_Code}/{v.UploadedDocument}");
-                                        <a href="@downloadUrl" class="btn btn-sm btn-outline-primary" download target="_blank">
-                                            Download
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">No Document</span>
-                                    } *@
                                 </td>
 
                                 <td class="text-center">
