@@ -3,6 +3,11 @@
 @{
     ViewData["Title"] = "Update Tatima Details";
 }
+<style type="text/css">
+    .required{
+        color: red;
+    }
+    </style>
 
 <div class="container d-flex justify-content-center align-items-center mt-3">
     <div class="card shadow" style="width: 100%; border:none;">
@@ -13,7 +18,7 @@
 
                 <div class="row">
                     <div class="form-group col-12 col-md-6  mb-3">
-                        <label class="label_head">District</label>
+                        <label class="label_head"><span class="required">*</span>District</label>
                         <select id="DIS_CODE" name="DIS_CODE" class="form-select">
                             <option value="">-- Select District --</option>
                             @foreach (var district in Model.DistrictList)
@@ -24,11 +29,11 @@
                                 </option>
                             }
                         </select>
-
+                        <span asp-validation-for="DIS_CODE" class="text-danger"></span>
                     </div>
 
                     <div class="form-group col-12 col-md-6  mb-3">
-                        <label class="label_head">Tehsil</label>
+                        <label class="label_head"><span class="required">*</span>Tehsil</label>
                         <select id="Tehsil" name="Tehsil" class="form-select">
                             <option value="">-- Select Tehsil --</option>
                             @if (Model.TehsilList != null)
@@ -41,6 +46,7 @@
                                 }
                             }
                         </select>
+                        <span asp-validation-for="Tehsil" class="text-danger"></span>
                     </div>
 
                 </div>
@@ -48,7 +54,7 @@
                 <div class=" row" >
 
                     <div class="form-group col-12 col-md-6  mb-3">
-                        <label class="label_head">Village</label>
+                        <label class="label_head"><span class="required">*</span>Village</label>
                         <select id="Village" name="Village" class="form-select">
                             <option value="">-- Select Village --</option>
                             @if (Model.VillageList != null)
@@ -61,10 +67,11 @@
                                 }
                             }
                         </select>
+                        <span asp-validation-for="Village" class="text-danger"></span>
                     </div>
 
                     <div class="form-group col-12 col-md-6  mb-3">
-                        <label class="label_head">Village Stage</label>
+                        <label class="label_head"><span class="required">*</span>Village Stage</label>
                         <select id="VillageStage" name="VillageStage" class="form-select
 ">
                             <option value="">-- Select Village Stage --</option>
@@ -76,21 +83,14 @@
                                 }
                             }
                         </select>
-
+                        <span asp-validation-for="VillageStage" class="text-danger"></span>
                     </div>
 
                 </div>
 
                 <div class="form-row row">
-
                     <div class="form-group col-12 col-md-6  mb-3">
-                        <label asp-for="WorkDate" style="text-align:left" class="label_head">If Work is done, Select date of work done. If not,Then select date When Work will be done?</label>
-                        <input asp-for="WorkDate" class="form-control" type="date" />
-                        <span asp-validation-for="WorkDate" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group col-12 col-md-6  mb-3">
-                        <label class="label_head">Is work done?</label>
+                        <label class="label_head"><span class="required">*</span>Is work done?</label>
                         <div class="switch">
                             <input type="radio" class="switch-input" id="yes" name="IsWorkDone" value="true" @(Model.IsWorkDone == true ? "checked" : "")>
                             <label for="yes" class="switch-label switch-label-off">Yes</label>
@@ -99,11 +99,17 @@
                             <span class="switch-selection"></span>
                         </div>
                     </div>
+
+                    <div class="form-group col-12 col-md-6  mb-3">
+                        <label asp-for="WorkDate" style="text-align:left" class="label_head"><span class="required">*</span>If Work is done, Select date of work done. If not, Then select date When Work will be done?</label>
+                        <input asp-for="WorkDate" class="form-control" type="date" />
+                        <span asp-validation-for="WorkDate" class="text-danger"></span>
+                    </div> 
                     
                 </div>
                 <div class="row">
                     <div class="form-group col-md-12">
-                        <label asp-for="UploadedFile" class="label_head"></label>
+                        <label asp-for="UploadedFile" class="label_head"><span class="required">*</span>Upload Document</label>
                         <input asp-for="UploadedFile" type="file" class="form-select"  />
                         <span asp-validation-for="UploadedFile" class="text-danger"></span>
                     </div>
@@ -111,19 +117,19 @@
                 </div>
                     <div class=" row">
                         <div class="form-group col-md-4  mt-3">
-                            <label asp-for="TotalTatima" class="label_head"></label>
-                            <input asp-for="TotalTatima" class="form-control" />
-                            <span asp-validation-for="TotalTatima" class="text-danger"></span>
+                        <label asp-for="TotalTatima" class="label_head"><span class="required">*</span>Total Tatima</label>
+                        <input asp-for="TotalTatima" id="TotalTatima" class="form-control" />
+                        <span asp-validation-for="TotalTatima" class="text-danger"></span>
                         </div>
                         <div class="form-group col-md-4  mt-3">
-                            <label asp-for="Completed" class="label_head"></label>
-                            <input asp-for="Completed" class="form-control" />
-                            <span asp-validation-for="Completed" class="text-danger"></span>
+                        <label asp-for="Completed" class="label_head"><span class="required">*</span>Completed</label>
+                        <input asp-for="Completed" id="Completed" class="form-control" />
+                        <span asp-validation-for="Completed" class="text-danger"></span>
                         </div>
                         <div class="form-group col-md-4  mt-3">
-                            <label asp-for="Pending" class="label_head"></label>
-                            <input asp-for="Pending" class="form-control" />
-                            <span asp-validation-for="Pending" class="text-danger"></span>
+                        <label asp-for="Pending" id="Pending" class="label_head"><span class="required">*</span>Pending</label>
+                        <input asp-for="Pending" class="form-control" />
+                        <span asp-validation-for="Pending" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -181,8 +187,18 @@
                         });
             </text>
         }
-        });
+                $('form').on('submit', function (e) {
+                    const total = parseInt($('#TotalTatima').val()) || 0;
+                    const completed = parseInt($('#Completed').val()) || 0;
+                    const pending = parseInt($('#Pending').val()) || 0;
 
+                    if (completed + pending > total) {
+                        alert("Total Tatima must be greater than or equal to the sum of Completed and Pending.");
+                        e.preventDefault(); // stop form submission
+                    }
+                });
+        });
+       
     </script>
 
 

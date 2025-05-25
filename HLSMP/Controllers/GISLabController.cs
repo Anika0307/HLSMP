@@ -6,12 +6,15 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HLSMP.Controllers
 {
@@ -28,10 +31,23 @@ namespace HLSMP.Controllers
             _env = env;
         }
         public IActionResult Index()
-        {
+        { 
+            //<================Get Details from session=======>
+            var userJson = HttpContext.Session.GetString("LoginUser");
+            int DistId = 0;
+            if (!string.IsNullOrEmpty(userJson))
+            {
+                var user = JsonSerializer.Deserialize<LoginLog>(userJson);
+                if (user != null)
+                {
+                    DistId = user.DistrictId;
+                    
+                }
+            }
+
             var model = new GISViewModel
             {
-                DistrictList = GetDistricts()
+                DistrictList = GetDistricts(DistId)
             };
 
             return View(model);
@@ -41,9 +57,24 @@ namespace HLSMP.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(GISViewModel model)
         {
+            //<================Get Details from session=======>
+            var userJson = HttpContext.Session.GetString("LoginUser");
+            string userName = "";
+            string IPAddress = "";
+            int DistId = 0;
+            if (!string.IsNullOrEmpty(userJson))
+            {
+                var user = JsonSerializer.Deserialize<LoginLog>(userJson);
+                if (user != null)
+                {
+                    userName = user.UserName;
+                    IPAddress = user.IPAddress;
+                    DistId = user.DistrictId;
+                }
+            }
             try
             {
-                model.DistrictList = GetDistricts();
+                model.DistrictList = GetDistricts(DistId);
                 model.TehsilList = GetTehsils(model.DIS_CODE);
                 model.VillageList = GetVillages(model.Tehsil);
                 model.VillageStageList = GetVillStageList();
@@ -68,19 +99,6 @@ namespace HLSMP.Controllers
                         await model.UploadedFile.CopyToAsync(stream);
                     }
                 }
-                //<================Get Details from session=======>
-                var userJson = HttpContext.Session.GetString("LoginUser");
-                string userName = "";
-                string IPAddress = "";
-                if (!string.IsNullOrEmpty(userJson))
-                {
-                    var user = JsonSerializer.Deserialize<LoginLog>(userJson);
-                    if (user != null)
-                    {
-                        userName = user.UserName;
-                        IPAddress = user.IPAddress;
-                    }
-                }
 
                 // Save to database
                 var data = new VillageTatima
@@ -88,17 +106,74 @@ namespace HLSMP.Controllers
                     Dist_Code = int.Parse(model.DIS_CODE),
                     Teh_Code = int.Parse(model.Tehsil),
                     VillageCode = int.Parse(model.Village),
-                    TotalTatima = model.TotalTatima,
-                    Completed = model.Completed,
-                    Pending = model.Pending,
+                    TotalTatima = model.TotalTatima ?? 0,
+                    Completed = model.Completed ?? 0,
+                    Pending = model.Pending ?? 0,
                     IsWorkDone = model.IsWorkDone == true ? "Y" : "N",
                     UploadedDocument = savedFileName,
                     WorkDate = Convert.ToDateTime(model.WorkDate),
                     VillageStageCode = Convert.ToInt32(model.VillageStage),
-                    IPAddress= IPAddress,
+                    IPAddress = IPAddress,
                     CreatedBy = userName
                 };
+                string statusCode = IsTatimaDetailExist(data);
+                if (statusCode == "1" || statusCode == "4" || statusCode == "7")
+                {
+                    UpdateTatimaDetail(data);
+                }
+                else if(string.IsNullOrEmpty(statusCode))
+                {
+                    InsertTatimaDetails(data);
+                }
+                else
+                {
+                    TempData["AlertMessage"] = "Data already exists.";
+                    return RedirectToAction("Index");
+                    
+                }
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["AlertMessage"] = "Exception: Enter Details";
+                return RedirectToAction("Index", model);
+            }
 
+        }
+        private string IsTatimaDetailExist(VillageTatima data)
+        {
+            string StatusCode = "";
+            try
+            {
+                using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                using SqlCommand cmd = new(@"sp_IsTatimaDetailExist", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.AddWithValue("@Dist_Code", data.Dist_Code);
+                cmd.Parameters.AddWithValue("@Teh_Code", data.Teh_Code);
+                cmd.Parameters.AddWithValue("@VillageCode", data.VillageCode);
+
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    StatusCode = reader["StatusCode"]?.ToString();
+                }
+                
+                return StatusCode;
+            }
+            catch (Exception ex)
+            { 
+                return StatusCode;
+            }
+        }
+        private void InsertTatimaDetails(VillageTatima data)
+        {
+            try
+            {
                 using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
                 using SqlCommand cmd = new(@"sp_InsertTatimaDetailByGIS", conn)
                 {
@@ -124,15 +199,54 @@ namespace HLSMP.Controllers
 
                 TempData["Message"] = "Tatima details saved successfully.";
                 TempData["Success"] = "true";
-                return RedirectToAction("Index");
+                return;
             }
             catch (Exception ex)
             {
-                TempData["AlertMessage"] = "Exception: Enter Details";
-                return RedirectToAction("Index", model);
+                TempData["AlertMessage"] = "Exception: Data Already Exist";
+                return;
             }
-
+           
         }
+
+        private void UpdateTatimaDetail(VillageTatima data)
+        {
+            try
+            {
+                using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                using SqlCommand cmd = new(@"sp_UpdateTatimaDetailByGIS", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.AddWithValue("@Dist_Code", data.Dist_Code);
+                cmd.Parameters.AddWithValue("@Teh_Code", data.Teh_Code);
+                cmd.Parameters.AddWithValue("@VillageCode", data.VillageCode);
+                cmd.Parameters.AddWithValue("@TotalTatima", data.TotalTatima);
+                cmd.Parameters.AddWithValue("@Completed", data.Completed);
+                cmd.Parameters.AddWithValue("@Pending", data.Pending);
+                cmd.Parameters.AddWithValue("@IsWorkDone", data.IsWorkDone);
+                cmd.Parameters.AddWithValue("@WorkDate", data.WorkDate);
+                cmd.Parameters.AddWithValue("@VillageStageCode", data.VillageStageCode);
+                cmd.Parameters.AddWithValue("@IPAddress", data.IPAddress);
+                cmd.Parameters.AddWithValue("@UpdatedBy", data.CreatedBy);
+                cmd.Parameters.AddWithValue("@UploadedDocument", (object?)data.UploadedDocument ?? DBNull.Value);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+
+                TempData["Message"] = "Tatima details Updated successfully.";
+                TempData["Success"] = "true";
+                return;
+            }
+            catch (Exception ex)
+            {
+                 TempData["AlertMessage"] = "Exception: Data Already Exist";
+                return;
+            }
+        }
+
         //<---------------------------/Save Method---------------------->
 
         //<---------------------------Tehsil,Village Bind Methods---------------------->
@@ -179,11 +293,12 @@ namespace HLSMP.Controllers
         //<---------------------------/Reason Bind Methods ---------------------->
        
         //<---------------------------DropDown Bind Methods---------------------->
-        private List<SelectListItem> GetDistricts()
+        private List<SelectListItem> GetDistricts( int DistId)
         {
             var districts = new List<SelectListItem>();
             using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new("select DIS_CODE, DIS_NAME as District from DIS_MAS", conn);
+            using SqlCommand cmd = new("select DIS_CODE, DIS_NAME as District from DIS_MAS where DIS_CODE= @DIS_CODE", conn);
+            cmd.Parameters.AddWithValue("@DIS_CODE", DistId);
             conn.Open();
             SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read())

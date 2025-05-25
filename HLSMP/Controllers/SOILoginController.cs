@@ -39,11 +39,19 @@ namespace HLSMP.Controllers
         [HttpPost]
         public IActionResult Index(SOIViewModel model)
         {
-            model.DistrictList = GetDistricts();
-            model.TehsilList = GetTehsils(model.DIS_CODE);
+            try
+            {
+                model.DistrictList = GetDistricts();
+                model.TehsilList = GetTehsils(model.DIS_CODE);
 
-            model.Villages = GetPendingTatima(model.DIS_CODE, model.TEH_CODE);
-            return View(model);
+                model.Villages = GetPendingTatima(model.DIS_CODE, model.TEH_CODE);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["AlertMessage"] = "Exception: Select District/Tehsil";
+                return RedirectToAction("Index", model);
+            }
         }
 
         [HttpPost]
@@ -79,15 +87,15 @@ namespace HLSMP.Controllers
             cmd.Parameters.AddWithValue("@DIS_CODE", DIS_CODE);
             conn.Open();
             SqlDataReader reader = cmd.ExecuteReader();
-            
-                while (reader.Read())
+
+            while (reader.Read())
+            {
+                tehsils.Add(new SelectListItem
                 {
-                    tehsils.Add(new SelectListItem
-                    {
-                        Value = reader["TEH_CODE"].ToString(), // This will be the posted value
-                        Text = reader["Tehsil"].ToString()   // This will be the visible text
-                    });
-                }
+                    Value = reader["TEH_CODE"].ToString(), // This will be the posted value
+                    Text = reader["Tehsil"].ToString()   // This will be the visible text
+                });
+            }
             return tehsils;
         }
 
@@ -142,7 +150,7 @@ namespace HLSMP.Controllers
 
             return villages;
         }
-       
+
 
         //====================== UpdateTatimaStatus=======================//
         [HttpPost]
@@ -179,7 +187,7 @@ namespace HLSMP.Controllers
             {
                 CommandType = CommandType.StoredProcedure
             };
- 
+
             cmd.Parameters.AddWithValue("@DIS_CODE", data.Dist_Code);
             cmd.Parameters.AddWithValue("@TEH_CODE", data.Teh_Code);
             cmd.Parameters.AddWithValue("@Vil_CODE", data.VillageCode);
@@ -197,17 +205,22 @@ namespace HLSMP.Controllers
             return Json(new { success = updateSuccessful });
 
         }
+        //====================== /UpdateTatimaStatus=======================//
 
-        [HttpGet]
+        //====================== Dawnload File Method=======================//
+        [HttpPost]
         public IActionResult DownloadDocument(string distCode, string tehCode, string villCode, string fileName)
         {
-            fileName = Uri.UnescapeDataString(fileName);
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return Json(new { success = false, message = "Document not available." });
+            }
 
-            var paddedDistCode = distCode.PadLeft(2, '0');   // e.g., 3 → 03
-            var paddedTehCode = tehCode.PadLeft(3, '0');     // e.g., 140 stays 140
-            var paddedVillCode = villCode.PadLeft(5, '0');   // e.g., 1385 → 01385
+            string paddedDistCode = distCode.PadLeft(2, '0');
+            string paddedTehCode = tehCode.PadLeft(3, '0');
+            string paddedVillCode = villCode.PadLeft(5, '0');
 
-            var fullPath = Path.Combine(
+            string filePath = Path.Combine(
                 _env.WebRootPath,
                 "Documents",
                 paddedDistCode,
@@ -216,15 +229,64 @@ namespace HLSMP.Controllers
                 fileName
             );
 
-            if (!System.IO.File.Exists(fullPath))
+            if (!System.IO.File.Exists(filePath))
             {
-                return NotFound($"File not found at: {fullPath}");
+                return Json(new { success = false, message = "Document not available." });
             }
 
-            var contentType = "application/pdf";
-            return PhysicalFile(fullPath, contentType, fileName);
+            string encodedFileName = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(fileName));
+
+            var url = Url.Action("StartDownload", "SOILogin", new
+            {
+                distCode,
+                tehCode,
+                villCode,
+                encodedFileName
+            });
+
+            return Json(new { success = true, url });
         }
+
+        [HttpGet]
+        public IActionResult StartDownload(string distCode, string tehCode, string villCode, string encodedFileName)
+        {
+            if (string.IsNullOrEmpty(encodedFileName))
+                return Content("Invalid filename.");
+
+            string fileName;
+            try
+            {
+                byte[] data = Convert.FromBase64String(encodedFileName);
+                fileName = System.Text.Encoding.UTF8.GetString(data);
+            }
+            catch
+            {
+                return Content("Invalid filename format.");
+            }
+
+            string paddedDistCode = distCode.PadLeft(2, '0');
+            string paddedTehCode = tehCode.PadLeft(3, '0');
+            string paddedVillCode = villCode.PadLeft(5, '0');
+
+            var filePath = Path.Combine(
+                _env.WebRootPath,
+                "Documents",
+                paddedDistCode,
+                paddedTehCode,
+                paddedVillCode,
+                fileName
+            );
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return Content("Document not available.");
+            }
+
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/octet-stream", fileName);
+        }
+
+        //====================== /Dawnload File Method=======================//
     }
 }
-           
-        
+

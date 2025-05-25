@@ -90,17 +90,19 @@
                                 <td class="text-center">@v.TotalTatima</td>
                                 <td class="text-center">@v.CompletedTatima</td>
                                 <td class="text-center">@v.PendingTatima</td>
-                              
-                                <td class="text-center">
-                                    <a href="@Url.Action("DownloadDocument", "SOILogin", new {
-                                         distCode = v.Dist_Code,
-                                          tehCode = v.Teh_Code,
-                                         villCode = v.Vill_Code,
-                                         fileName = Uri.EscapeDataString(v.UploadedDocument)
-                                         })"
-                                       class="btn_1" target="_blank">Download</a>
 
-                                  
+                                <td class="text-center">
+                                    @if (!string.IsNullOrEmpty(v.UploadedDocument))
+                                    {
+                                        <button type="button" class="btn_1"
+                                                onclick="downloadDocument('@v.Dist_Code', '@v.Teh_Code', '@v.Vill_Code', '@v.UploadedDocument')">
+                                            Download
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn_1" onclick="alert('Document not available');">Download</button>
+                                    }
                                 </td>
 
                                 <td class="text-center">
@@ -109,7 +111,7 @@
                                 <td class="text-center">
                                     <div class="d-flex flex-column align-items-center gap-1">
                                         <button type="button" class="btn btn-sm btn_1 w-100" data-action="accept">Accept</button>
-                                        <button type="button" class="btn btn-sm btn-danger w-100" data-action="reject">Reject</button>
+                                        <button type="button" class="btn btn-sm btn-danger w-100 " data-action="reject">Reject</button>
                                     </div>
                                 </td>
                             </tr>
@@ -124,7 +126,6 @@ else
 {
     <div class="alert alert-info mt-4">No villages found.</div>
 }
-
 
 
 
@@ -149,7 +150,53 @@ else
                 });
             });
         });
+        @if (TempData["AlertMessage"] != null)
+        {
+            <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '@TempData["AlertMessage"]',
+                    confirmButtonText: 'OK'
+                });
+            </text>
+        }
+        // To Download Document 
+            function base64EncodeUnicode(str) {
+                return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+                    function toSolidBytes(match, p1) {
+                        return String.fromCharCode('0x' + p1);
+                    }));
+            }
 
+        // Download button AJAX
+        function downloadDocument(distCode, tehCode, villCode, fileName) {
+            $.ajax({
+                url: '@Url.Action("DownloadDocument", "SOILogin")',
+                type: 'POST',
+                data: {
+                    distCode: distCode,
+                    tehCode: tehCode,
+                    villCode: villCode,
+                    fileName: fileName
+                },
+                success: function (response) {
+                    if (response.success) {
+                        const link = document.createElement('a');
+                        link.href = response.url;
+                        link.download = fileName;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("Server error while downloading the file.");
+                }
+            });
+        }
         // Accept/Reject button click
         $('.action-btn').click(function () {
             var button = $(this);
@@ -190,5 +237,3 @@ else
         });
     </script>
 }
-
-
