@@ -8,9 +8,9 @@ namespace HLSMP.ViewModel
         public string VillageName { get; set; }
         public string DistrictName { get; set; }
         public string TehsilName { get; set; }
-        public int Dist_Code { get; set; }
-        public int Teh_Code { get; set; }
-        public int Vill_Code { get; set; }
+        public string Dist_Code { get; set; }
+        public string Teh_Code { get; set; }
+        public string Vill_Code { get; set; }
         public int TotalTatima { get; set; }
         public int CompletedTatima { get; set; }
         public int PendingTatima    { get; set; }
@@ -23,6 +23,7 @@ namespace HLSMP.ViewModel
         public DateTime? WorkDate { get; set; }
         public int VillageStageCode { get; set; }
         public string VillageStage { get; set; }
+        
 
     }
 }

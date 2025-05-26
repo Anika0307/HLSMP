@@ -48,12 +48,13 @@ namespace HLSMP.ViewModel
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if ((Completed ?? 0) + (Pending ?? 0) >= (TotalTatima ?? 0))
+            if ((Completed ?? 0) + (Pending ?? 0) > (TotalTatima ?? 0))
             {
                 yield return new ValidationResult("Completed + Pending must be less than Total Tatima", new[] { "TotalTatima" });
             }
         }
     }
 }
+
 
 

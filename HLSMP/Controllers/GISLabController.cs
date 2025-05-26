@@ -103,9 +103,9 @@ namespace HLSMP.Controllers
                 // Save to database
                 var data = new VillageTatima
                 {
-                    Dist_Code = int.Parse(model.DIS_CODE),
-                    Teh_Code = int.Parse(model.Tehsil),
-                    VillageCode = int.Parse(model.Village),
+                    Dist_Code = model.DIS_CODE,
+                    Teh_Code = model.Tehsil,
+                    VillageCode = model.Village,
                     TotalTatima = model.TotalTatima ?? 0,
                     Completed = model.Completed ?? 0,
                     Pending = model.Pending ?? 0,
