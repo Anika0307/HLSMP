@@ -4,6 +4,12 @@
     ViewData["Title"] = "SOI Lab";
 }
 
+<style type="text/css">
+    .required {
+        color: red;
+    }
+</style>
+
 <div class="container d-flex justify-content-center align-items-center mt-3">
     <div class="card shadow" style="width: 100%; border:none;">
         <div class="header_1"><h6 class="mb-0">Tatima Details For SOI Approval</h6></div>
@@ -106,12 +112,17 @@
                                 </td>
 
                                 <td class="text-center">
-                                    <input type="text" class="form-control form-control-sm" placeholder="Enter remarks" name="Remarks" required />
+                                    <label class="form-label d-block text-start">
+                                        Remarks <span class="required">*</span>
+                                    </label>
+                                    <input type="text" class="form-control form-control-sm remarks-input" placeholder="Enter remarks" name="Remarks" required />
+                                    <span asp-validation-for="Remarks" class="text-danger"></span>
                                 </td>
+
                                 <td class="text-center">
                                     <div class="d-flex flex-column align-items-center gap-1">
-                                        <button type="button" class="btn btn-sm btn_1 w-100" data-action="accept">Accept</button>
-                                        <button type="button" class="btn btn-sm btn-danger w-100 " data-action="reject">Reject</button>
+                                        <button type="button" class="btn btn-sm btn_1 w-100 action-btn" data-action="accept">Accept</button>
+                                        <button type="button" class="btn btn-sm btn-danger w-100 action-btn" data-action="reject">Reject</button>
                                     </div>
                                 </td>
                             </tr>
@@ -130,8 +141,12 @@ else
 
 
 @section Scripts {
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+   
     <script>
         $(document).ready(function () {
             $('#DIS_CODE').change(function () {
@@ -233,8 +248,55 @@ else
                 },
                 error: function () {
                     alert("Server error. Please try again later.");
+
                 }
-            });
-        });
+
+			$.ajax({
+			url: '@Url.Action("UpdateTatimaStatus", "SOILogin")',
+			type: 'POST',
+			data: {
+				villCode: villCode,
+				disCode: disCode,
+				tehCode: tehCode,
+				remarks: remarks,
+				action: action
+			},
+			success: function (response) {
+				if (response.success) {
+					// Update UI
+					button.closest('td').html('<span class="text-success">' + action.charAt(0).toUpperCase() + action.slice(1) + 'ed</span>');
+					row.find('.remarks-input').prop('disabled', true);
+
+					// Show SweetAlert
+					Swal.fire({
+						icon: 'success',
+						title: 'Success',
+						text: 'Marked as ' + action.charAt(0).toUpperCase() + action.slice(1) + 'ed and sent to the Department.',
+						confirmButtonText: 'OK'
+					});
+				} else {
+					// Failure response from server
+					Swal.fire({
+						icon: 'error',
+						title: 'Update Failed',
+						text: 'Failed to update. Please try again.',
+						confirmButtonText: 'OK'
+					});
+				}
+			},
+			error: function () {
+				// Server or network error
+				Swal.fire({
+					icon: 'error',
+					title: 'Server Error',
+					text: 'An error occurred on the server. Please try again later.',
+					confirmButtonText: 'OK'
+				});
+			}
+		});
+
+			});
+		});
+
     </script>
 }

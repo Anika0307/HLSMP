@@ -4,16 +4,22 @@
     ViewData["Title"] = "Revenue Department Login";
 }
 
+<style type="text/css">
+    .required {
+        color: red;
+    }
+</style>
+
 <div class="container d-flex justify-content-center align-items-center mt-3">
     <div class="card shadow" style="width: 100%; border:none;">
-        <div class="header_1"><h6 class="mb-0">Tatima Details For Revenue Department Approval</h6></div>
+        <div class="header_1"><h6 class="mb-0">Tatima Details For SOI Approval</h6></div>
         <div class="card-body">
 
-            <form method="post" asp-controller="RevDepartment" asp-action="RevDepartmentView">
+            <form method="post" asp-controller="SOILogin" asp-action="Index">
                 <div class="row">
                     <div class="form-group col-12 col-md-6  mb-3">
                         <label>District</label>
-                        <select id="DIS_CODE" name="DIS_CODE" class="form-control">
+                        <select id="DIS_CODE" name="DIS_CODE" class="form-select">
                             <option value="">-- Select District --</option>
                             @foreach (var district in Model.DistrictList)
 
@@ -27,7 +33,7 @@
                     <div class="form-group col-12 col-md-6  mb-3">
 
                         <label>Tehsil</label>
-                        <select id="TEH_CODE" name="TEH_CODE" class="form-control">
+                        <select id="TEH_CODE" name="TEH_CODE" class="form-select">
                             <option value="">-- Select Tehsil --</option>
                             @if (Model.TehsilList != null)
                             {
@@ -45,7 +51,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="save_btn">
-                            <button type="submit" class="btn btn-primary">Search</button>
+                            <button type="submit">Search</button>
                         </div>
                     </div>
                 </div>
@@ -90,23 +96,33 @@
                                 <td class="text-center">@v.TotalTatima</td>
                                 <td class="text-center">@v.CompletedTatima</td>
                                 <td class="text-center">@v.PendingTatima</td>
+
                                 <td class="text-center">
-                                    <a href="@Url.Action("DownloadDocument", "RevDepartment", new {
-                                         distCode = v.Dist_Code,
-                                          tehCode = v.Teh_Code,
-                                         villCode = v.Vill_Code,
-                                         fileName = Uri.EscapeDataString(v.UploadedDocument)
-                                         })"
-                                       class="btn btn-sm btn-outline-primary" target="_blank">Download</a>
+                                    @if (!string.IsNullOrEmpty(v.UploadedDocument))
+                                    {
+                                        <button type="button" class="btn_1"
+                                                onclick="downloadDocument('@v.Dist_Code', '@v.Teh_Code', '@v.Vill_Code', '@v.UploadedDocument')">
+                                            Download
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn_1" onclick="alert('Document not available');">Download</button>
+                                    }
                                 </td>
 
                                 <td class="text-center">
-                                    <input type="text" class="form-control form-control-sm" placeholder="Enter remarks" name="Remarks" required />
+                                    <label class="form-label d-block text-start">
+                                        Remarks <span class="required">*</span>
+                                    </label>
+                                    <input type="text" class="form-control form-control-sm remarks-input" placeholder="Enter remarks" name="Remarks" required />
+                                    <span asp-validation-for="Remarks" class="text-danger"></span>
                                 </td>
+
                                 <td class="text-center">
                                     <div class="d-flex flex-column align-items-center gap-1">
-                                        <button type="button" class="btn btn-sm btn-success w-100" data-action="accept">Accept</button>
-                                        <button type="button" class="btn btn-sm btn-danger w-100" data-action="reject">Reject</button>
+                                        <button type="button" class="btn btn-sm btn_1 w-100 action-btn" data-action="accept">Accept</button>
+                                        <button type="button" class="btn btn-sm btn-danger w-100 action-btn" data-action="reject">Reject</button>
                                     </div>
                                 </td>
                             </tr>
@@ -124,22 +140,16 @@ else
 
 
 
-
 @section Scripts {
-  @*   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> *@
 
-    <!-- ✅ Only one jQuery reference -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-    <!-- ✅ Validation plugins (must follow jQuery) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"></script>
-
-    <!-- SweetAlert -->
+ 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(document).ready(function () {
+            // DIS_CODE change event
             $('#DIS_CODE').change(function () {
                 var DIS_CODE = $(this).val();
                 $.ajax({
@@ -156,16 +166,15 @@ else
                     }
                 });
             });
-        });
 
-               // Accept/Reject button click
+            // Accept/Reject button click
             $('.action-btn').click(function () {
                 var button = $(this);
                 var row = button.closest('tr');
                 var villCode = row.data('vilcode');
                 var disCode = row.data('discode');
                 var tehCode = row.data('tehcode');
-                var remarks = row.find('.remarks-input').val();
+                var remarks = row.find('.remarks-input').val(); // Use the updated class selector
                 var action = button.data('action');
 
                 if (!remarks) {
@@ -173,31 +182,53 @@ else
                     return;
                 }
 
-                $.ajax({
-                    url: '@Url.Action("UpdateTatimaStatus", "RevDepartment")',
-                    type: 'POST',
-                    data: {
-                        villCode: villCode,
-                        disCode: disCode,
-                        tehCode: tehCode,
-                        remarks: remarks,
-                        action: action
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            button.closest('td').html('<span class="text-success">' + action.charAt(0).toUpperCase() + action.slice(1) + 'ed</span>');
-                            row.find('.remarks-input').prop('disabled', true);
-                        } else {
-                            alert("Failed to update. Try again.");
-                        }
-                    },
-                    error: function () {
-                        alert("Server error. Please try again later.");
-                    }
+            $.ajax({
+            url: '@Url.Action("UpdateTatimaStatus", "RevDepartment")',
+            type: 'POST',
+            data: {
+                villCode: villCode,
+                disCode: disCode,
+                tehCode: tehCode,
+                remarks: remarks,
+                action: action
+            },
+            success: function (response) {
+                if (response.success) {
+                    // Update UI
+                    button.closest('td').html('<span class="text-success">' + action.charAt(0).toUpperCase() + action.slice(1) + 'ed</span>');
+                    row.find('.remarks-input').prop('disabled', true);
+
+                    // Show SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Marked as ' + action.charAt(0).toUpperCase() + action.slice(1) + 'ed and sent to the Department.',
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    // Failure response from server
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        text: 'Failed to update. Please try again.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function () {
+                // Server or network error
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Server Error',
+                    text: 'An error occurred on the server. Please try again later.',
+                    confirmButtonText: 'OK'
                 });
+            }
+        });
+
             });
         });
-    </script>
-	}
 
+    </script>
+}
 

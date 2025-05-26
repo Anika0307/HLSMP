@@ -6,6 +6,7 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Net.Sockets;
 using System.Net;
+using System.Text.Json;
 
 namespace HLSMP.Controllers
 {
@@ -132,9 +133,9 @@ namespace HLSMP.Controllers
                     IsWorkDone = reader["IsWorkDone"]?.ToString() == "Y" ? "Yes" : "No",
                     WorkDate = reader["WorkDate"] != DBNull.Value ? Convert.ToDateTime(reader["WorkDate"]) : (DateTime?)null,
                     VillageStage = reader["VillageStage"]?.ToString(),
-                    Dist_Code = Convert.ToInt32(reader["Dist_Code"]),
-                    Teh_Code = Convert.ToInt32(reader["Teh_Code"]),
-                    Vill_Code = Convert.ToInt32(reader["VillageCode"]),
+                    Dist_Code = Convert.ToString(reader["Dist_Code"]),
+                    Teh_Code = Convert.ToString(reader["Teh_Code"]),
+                    Vill_Code = Convert.ToString(reader["VillageCode"]),
                    UploadedDocument = Convert.ToString(reader["UploadedDocument"])
     
 
@@ -148,6 +149,19 @@ namespace HLSMP.Controllers
         [HttpPost]
         public IActionResult UpdateTatimaStatus(string disCode, string tehCode, string villCode, string remarks, string action)
         {
+            var userJson = HttpContext.Session.GetString("LoginUser");
+            string userName = "";
+            string IPAddress = "";
+            if (!string.IsNullOrEmpty(userJson))
+            {
+                var user = JsonSerializer.Deserialize<LoginLog>(userJson);
+                if (user != null)
+                {
+                    userName = user.UserName;
+                    IPAddress = user.IPAddress;
+                }
+            }
+
             string Action = action.Equals("accept", StringComparison.OrdinalIgnoreCase) ? "Accepted" : "Rejected";
             var data = new VillageTatima
             {
@@ -156,8 +170,10 @@ namespace HLSMP.Controllers
                 VillageCode = villCode,
                 StatusCode = (Action == "Accepted") ? 6 : 7,
                 Remarks = remarks,
-                IPAddress = GetSystemIpAddress()
+                IPAddress = IPAddress,
+                UpdatedBy = userName
             };
+
             int rowsAffected = 0;
 
             using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
@@ -165,21 +181,21 @@ namespace HLSMP.Controllers
             {
                 CommandType = CommandType.StoredProcedure
             };
+
             cmd.Parameters.AddWithValue("@DIS_CODE", data.Dist_Code);
             cmd.Parameters.AddWithValue("@TEH_CODE", data.Teh_Code);
             cmd.Parameters.AddWithValue("@Vil_CODE", data.VillageCode);
-            cmd.Parameters.AddWithValue("@TEH_CODE", data.StatusCode);
+            cmd.Parameters.AddWithValue("@StatusCode", data.StatusCode);
             cmd.Parameters.AddWithValue("@IPAddress", data.IPAddress);
             cmd.Parameters.AddWithValue("@Remarks", data.Remarks);
+            cmd.Parameters.AddWithValue("@UpdatedBy", data.UpdatedBy);
+
             conn.Open();
-            cmd.ExecuteNonQuery();
+            rowsAffected = cmd.ExecuteNonQuery(); // ✅ Capture affected rows
             conn.Close();
+
             bool updateSuccessful = rowsAffected > 0;
-            TempData["Message"] = "Tatima Succefully Updated";
-            TempData["Success"] = "true";
-
             return Json(new { success = updateSuccessful });
-
         }
 
         [HttpGet]
