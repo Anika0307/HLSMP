@@ -15,7 +15,7 @@ using HLSMP.CustomAttribute;
 namespace HLSMP.Controllers
 {
 
-    [AuthorizeRoles(2)]
+   // [AuthorizeRoles(2)]
     public class SOILoginController : Controller
     {
         private readonly IWebHostEnvironment _env;
@@ -220,16 +220,16 @@ namespace HLSMP.Controllers
                 return Json(new { success = false, message = "Document not available." });
             }
 
-            string paddedDistCode = distCode.PadLeft(2, '0');
-            string paddedTehCode = tehCode.PadLeft(3, '0');
-            string paddedVillCode = villCode.PadLeft(5, '0');
+            //string paddedDistCode = distCode.PadLeft(2, '0');
+            //string paddedTehCode = tehCode.PadLeft(3, '0');
+            //string paddedVillCode = villCode.PadLeft(5, '0');
 
             string filePath = Path.Combine(
                 _env.WebRootPath,
                 "Documents",
-                paddedDistCode,
-                paddedTehCode,
-                paddedVillCode,
+                distCode,
+                tehCode,
+                villCode,
                 fileName
             );
 
@@ -268,16 +268,16 @@ namespace HLSMP.Controllers
                 return Content("Invalid filename format.");
             }
 
-            string paddedDistCode = distCode.PadLeft(2, '0');
-            string paddedTehCode = tehCode.PadLeft(3, '0');
-            string paddedVillCode = villCode.PadLeft(5, '0');
+            //string paddedDistCode = distCode.PadLeft(2, '0');
+            //string paddedTehCode = tehCode.PadLeft(3, '0');
+            //string paddedVillCode = villCode.PadLeft(5, '0');
 
             var filePath = Path.Combine(
                 _env.WebRootPath,
                 "Documents",
-                paddedDistCode,
-                paddedTehCode,
-                paddedVillCode,
+                distCode,
+                tehCode,
+                villCode,
                 fileName
             );
 
@@ -290,7 +290,7 @@ namespace HLSMP.Controllers
             return File(fileBytes, "application/octet-stream", fileName);
         }
 
-        //====================== /Dawnload File Method=======================//
+        //====================== /Download File Method=======================//
     }
 }
 

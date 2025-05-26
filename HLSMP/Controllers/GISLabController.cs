@@ -19,7 +19,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace HLSMP.Controllers
 {
 
-    [AuthorizeRoles(1)]
+    //[AuthorizeRoles(1)]
     public class GISLabController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -93,6 +93,7 @@ namespace HLSMP.Controllers
                 {
                     return View(model);
                 }
+                // Validate the uploaded file
                 if (model.VillageStage == "1" || model.VillageStage == "2")
                 {
                     string rootPath = Path.Combine(_env.WebRootPath, "Documents", model.DIS_CODE, model.Tehsil, model.Village);
@@ -140,33 +141,11 @@ namespace HLSMP.Controllers
                     {
                         TempData["AlertMessage"] = "Data already exists.";
                         return RedirectToAction("Index");
-
-
-                // Save to database
-                var data = new VillageTatima
-                {
-                    Dist_Code = model.DIS_CODE,
-                    Teh_Code = model.Tehsil,
-                    VillageCode = model.Village,
-                    TotalTatima = model.TotalTatima ?? 0,
-                    Completed = model.Completed ?? 0,
-                    Pending = model.Pending ?? 0,
-                    IsWorkDone = model.IsWorkDone == true ? "Y" : "N",
-                    UploadedDocument = savedFileName,
-                    WorkDate = Convert.ToDateTime(model.WorkDate),
-                    VillageStageCode = Convert.ToInt32(model.VillageStage),
-                    IPAddress = IPAddress,
-                    CreatedBy = userName
-                };
-                string statusCode = IsTatimaDetailExist(data);
-                if (statusCode == "1" || statusCode == "4" || statusCode == "7")
-                {
-                    UpdateTatimaDetail(data);
-
                     }
-
                 }
-                else 
+
+                // If VillageStage is 3 or 4, skip file upload and save other details
+                else
                 {
                     var data = new VillageTatima
                     {

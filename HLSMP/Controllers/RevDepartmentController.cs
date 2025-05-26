@@ -7,9 +7,11 @@ using System.Data;
 using System.Net.Sockets;
 using System.Net;
 using System.Text.Json;
+using HLSMP.CustomAttribute;
 
 namespace HLSMP.Controllers
 {
+    //[AuthorizeRoles(3)]
     public class RevDepartmentController : Controller
     {
         private readonly IWebHostEnvironment _env;
@@ -32,7 +34,7 @@ namespace HLSMP.Controllers
             string DIS_CODE = "", TEH_CODE = "";
             model.Villages = GetPendingTatima(DIS_CODE, TEH_CODE);
             return View(model);
-           
+
         }
 
 
@@ -136,8 +138,8 @@ namespace HLSMP.Controllers
                     Dist_Code = Convert.ToString(reader["Dist_Code"]),
                     Teh_Code = Convert.ToString(reader["Teh_Code"]),
                     Vill_Code = Convert.ToString(reader["VillageCode"]),
-                   UploadedDocument = Convert.ToString(reader["UploadedDocument"])
-    
+                    UploadedDocument = Convert.ToString(reader["UploadedDocument"])
+
 
                 });
             }
@@ -198,50 +200,84 @@ namespace HLSMP.Controllers
             return Json(new { success = updateSuccessful });
         }
 
-        [HttpGet]
+        [HttpPost]
         public IActionResult DownloadDocument(string distCode, string tehCode, string villCode, string fileName)
         {
-            fileName = Uri.UnescapeDataString(fileName);
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return Json(new { success = false, message = "Document not available." });
+            }
 
-            // Fix: Pad values to match actual folder names
-            var paddedDistCode = distCode.PadLeft(2, '0');   // e.g., 3 → 03
-            var paddedTehCode = tehCode.PadLeft(3, '0');     // e.g., 140 stays 140
-            var paddedVillCode = villCode.PadLeft(5, '0');   // e.g., 1385 → 01385
+            //string paddedDistCode = distCode.PadLeft(2, '0');
+            //string paddedTehCode = tehCode.PadLeft(3, '0');
+            //string paddedVillCode = villCode.PadLeft(5, '0');
 
-            var fullPath = Path.Combine(
+            string filePath = Path.Combine(
                 _env.WebRootPath,
                 "Documents",
-                paddedDistCode,
-                paddedTehCode,
-                paddedVillCode,
+                distCode,
+                tehCode,
+                villCode,
                 fileName
             );
 
-            if (!System.IO.File.Exists(fullPath))
+            if (!System.IO.File.Exists(filePath))
             {
-                return NotFound($"File not found at: {fullPath}");
+                return Json(new { success = false, message = "Document not available." });
             }
 
-            var contentType = "application/pdf";
-            return PhysicalFile(fullPath, contentType, fileName);
+            string encodedFileName = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(fileName));
+
+            var url = Url.Action("StartDownload", "RevDepartment", new
+            {
+                distCode,
+                tehCode,
+                villCode,
+                encodedFileName
+            });
+
+            return Json(new { success = true, url });
         }
 
-        //===================== Get IP Address ======================//
-        public string GetSystemIpAddress()
+        [HttpGet]
+        public IActionResult StartDownload(string distCode, string tehCode, string villCode, string encodedFileName)
         {
+            if (string.IsNullOrEmpty(encodedFileName))
+                return Content("Invalid filename.");
+
+            string fileName;
             try
             {
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                var ipAddress = host.AddressList
-                                     .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork);
-
-                return ipAddress?.ToString() ?? throw new Exception("No IPv4 address found.");
+                byte[] data = Convert.FromBase64String(encodedFileName);
+                fileName = System.Text.Encoding.UTF8.GetString(data);
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception($"Error retrieving system IP: {ex.Message}");
+                return Content("Invalid filename format.");
             }
+
+            //string paddedDistCode = distCode.PadLeft(2, '0');
+            //string paddedTehCode = tehCode.PadLeft(3, '0');
+            //string paddedVillCode = villCode.PadLeft(5, '0');
+
+            var filePath = Path.Combine(
+                _env.WebRootPath,
+                "Documents",
+                distCode,
+                tehCode,
+                villCode,
+                fileName
+            );
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return Content("Document not available.");
+            }
+
+            byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/octet-stream", fileName);
         }
 
+        //====================== /Download File Method=======================//
     }
 }

@@ -1,0 +1,39 @@
+ // Accept/Reject button click
+ $('.action-btn').click(function () {
+     var button = $(this);
+     var row = button.closest('tr');
+     var villCode = row.data('vilcode');
+     var disCode = row.data('discode');
+     var tehCode = row.data('tehcode');
+     var remarks = row.find('.remarks-input').val();
+     var action = button.data('action');
+
+     if (!remarks) {
+         alert("Please enter remarks before " + action + "ing.");
+         return;
+     }
+
+     $.ajax({
+         url: '@Url.Action("UpdateTatimaStatus", "SOILogin")',
+         type: 'POST',
+         data: {
+             villCode: villCode,
+             disCode: disCode,
+             tehCode: tehCode,
+             remarks: remarks,
+             action: action
+         },
+         success: function (response) {
+             if (response.success) {
+                 button.closest('td').html('<span class="text-success">' + action.charAt(0).toUpperCase() + action.slice(1) + 'ed</span>');
+                 row.find('.remarks-input').prop('disabled', true);
+             } else {
+                 alert("Failed to update. Try again.");
+             }
+         },
+         error: function () {
+             alert("Server error. Please try again later.");
+         }
+     });
+ });
+==========================================================================

@@ -1,7 +1,9 @@
 ﻿@model HLSMP.ViewModel.SOIViewModel
+@using System.Web
+
 
 @{
-    ViewData["Title"] = "Revenue Department Login";
+    ViewData["Title"] = "SOI Lab";
 }
 
 <style type="text/css">
@@ -101,7 +103,10 @@
                                     @if (!string.IsNullOrEmpty(v.UploadedDocument))
                                     {
                                         <button type="button" class="btn_1"
-                                                onclick="downloadDocument('@v.Dist_Code', '@v.Teh_Code', '@v.Vill_Code', '@v.UploadedDocument')">
+                                                onclick="downloadDocument('@Html.Raw(HttpUtility.JavaScriptStringEncode(v.Dist_Code))',
+                                           '@Html.Raw(HttpUtility.JavaScriptStringEncode(v.Teh_Code))',
+                                           '@Html.Raw(HttpUtility.JavaScriptStringEncode(v.Vill_Code))',
+                                           '@Html.Raw(HttpUtility.JavaScriptStringEncode(v.UploadedDocument))')">
                                             Download
                                         </button>
                                     }
@@ -110,6 +115,8 @@
                                         <button type="button" class="btn_1" onclick="alert('Document not available');">Download</button>
                                     }
                                 </td>
+
+
 
                                 <td class="text-center">
                                     <label class="form-label d-block text-start">
@@ -141,19 +148,40 @@ else
 
 
 @section Scripts {
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
- 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+
+            function downloadDocument(distCode, tehCode, villCode, fileName) {
+            $.ajax({
+                url: '@Url.Action("DownloadDocument", "SOILogin")',
+                type: 'POST',
+                data: {
+                    distCode: distCode,
+                    tehCode: tehCode,
+                    villCode: villCode,
+                    fileName: fileName
+                },
+                success: function (response) {
+                    if (response.success && response.url) {
+                        window.location.href = response.url;
+                    } else {
+                        alert(response.message || "Unable to process the download request.");
+                    }
+                },
+                error: function () {
+                    alert("Server error while downloading the file.");
+                }
+            });
+        }
+
         $(document).ready(function () {
             // DIS_CODE change event
             $('#DIS_CODE').change(function () {
                 var DIS_CODE = $(this).val();
                 $.ajax({
-                    url: '@Url.Action("GetTehsilsByDistrict", "RevDepartment")',
+                    url: '@Url.Action("GetTehsilsByDistrict", "SOILogin")',
                     type: 'POST',
                     data: { DIS_CODE: DIS_CODE },
                     success: function (data) {
@@ -166,6 +194,30 @@ else
                     }
                 });
             });
+
+        //                 function downloadDocument(distCode, tehCode, villCode, fileName) {
+        //     $.ajax({
+        //         url: '@Url.Action("DownloadDocument", "SOILogin")',
+        //         type: 'POST',
+        //         data: {
+        //             distCode: distCode,
+        //             tehCode: tehCode,
+        //             villCode: villCode,
+        //             fileName: fileName
+        //         },
+        //         success: function (response) {
+        //             if (response.success && response.url) {
+        //                 // Use window.location to trigger download
+        //                 window.location.href = response.url;
+        //             } else {
+        //                 alert(response.message || "Unable to process the download request.");
+        //             }
+        //         },
+        //         error: function () {
+        //             alert("Server error while downloading the file.");
+        //         }
+        //     });
+        // }
 
             // Accept/Reject button click
             $('.action-btn').click(function () {
@@ -183,7 +235,7 @@ else
                 }
 
             $.ajax({
-            url: '@Url.Action("UpdateTatimaStatus", "RevDepartment")',
+            url: '@Url.Action("UpdateTatimaStatus", "SOILogin")',
             type: 'POST',
             data: {
                 villCode: villCode,
@@ -231,4 +283,3 @@ else
 
     </script>
 }
-

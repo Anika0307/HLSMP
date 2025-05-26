@@ -3,40 +3,57 @@
 @{
     ViewData["Title"] = "Dashboard";
 }
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
 <style>
-    table tr td{
-    font-weight:bold;
+    table tr td {
+        font-weight: bold;
     }
 </style>
-<h2 class="dashboard_head pb-2 mt-5">District Tatima Dashboard</h2>
+
+<h2 class="dashboard_head pb-2 mt-5">TATIMA DETAILS</h2>
 
 <div class="table_scroll">
-<table class="table table-bordered table-hover table-striped text-center align-middle mb-4" style="font-size: 1.3rem">
-    <thead>
-        <tr>
-            <th>District</th>
-            <th>Total Tatimas</th> 
-            <th>Total Tatimas Pending</th>
-            <th>Total Tatimas Completed</th>
-            <th>Pending At SOI</th>
-            <th>Pending At Department</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.TatimaSummaries)
-        {
+    <table class="table table-bordered table-hover table-striped text-center align-middle mb-4" style="font-size: 1.3rem">
+        <thead>
+            <tr>
+                <th>Sr.No.</th>
+                <th>District</th>
+                <th>Total Tatimas</th>
+                <th>Total Tatimas Pending</th>
+                <th>Total Tatimas Completed</th>
+                <th>Pending At SOI</th>
+                <th>Pending At Department</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int rowNumber = 1;
+            }
+            @foreach (var item in Model.Districts)
+            {
                 <tr>
-                <td>@item.District</td>
-                    <td>@item.TotalTatimaDistrict</td>
-                    <td>@item.TatimasPending</td>
-                    <td>@item.TatimasCompleted</td>
-
+                    <td>@rowNumber</td>
+                    <td>@item.DistrictName</td>
+                    <td>@item.TotalTatima</td>
+                    <td>@item.PendingTatima</td>
+                    <td>@item.CompletedTatima</td>
                     <td>@item.PendingAtSOI</td>
                     <td>@item.PendingAtDepartment</td>
+                </tr>
+                rowNumber++;
+            }
+        </tbody>
 
-
-        </tr>}
-       
-    </tbody>
-</table>
+    </table>
 </div>
+@section Scripts {
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.table').DataTable();
+    });
+</script>
+}
