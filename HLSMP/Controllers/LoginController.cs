@@ -17,7 +17,7 @@ namespace HLSMP.Controllers
         private readonly Dictionary<string, int> _roles = new()
 {
             { "GIS Lab", 1 },
-            { "Service of India", 2 },
+            { "Survey of India", 2 },
             { "Revenue Department", 3 }
 };
         public LoginController(ApplicationDbContext context)
@@ -98,7 +98,7 @@ namespace HLSMP.Controllers
                 return vm.Role switch
                 {
                     "GIS Lab" => RedirectToAction("Index", "GISLab"),
-                    "Service of India" => RedirectToAction("Index", "SOILogin"),
+                    "Survey of India" => RedirectToAction("Index", "SOILogin"),
                     "Revenue Department" => RedirectToAction("RevDepartmentView", "RevDepartment"),
                     _ => RedirectToAction("LoginView")
                 };

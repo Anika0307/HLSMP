@@ -4,12 +4,14 @@ namespace HLSMP.Models
 {
     public class VillageTatima
     {
-        public int Dist_Code { get; set; }
-
-        public int Teh_Code { get; set; }
+        [StringLength(2)]
+        public string Dist_Code { get; set; }
+        [StringLength(3)]
+        public string Teh_Code { get; set; }
 
         [Key]
-        public int VillageCode { get; set; }
+        [StringLength(5)]
+        public string VillageCode { get; set; }
 
         public int TotalTatima { get; set; }
 
@@ -22,17 +24,17 @@ namespace HLSMP.Models
         public string?  UploadedDocument { get; set; }
 
         [StringLength(1)]
-        public string IsWorkDone { get; set; }
-        public string Remarks { get; set; }
+        public string? IsWorkDone { get; set; }
+        public string? Remarks { get; set; }
 
-        public DateTime WorkDate { get; set; }
+        public DateTime? WorkDate { get; set; }
         public int VillageStageCode { get; set; }
         [StringLength(100)]
         public string IPAddress { get; set; } 
         public DateTime CreatedDate { get; set; } 
-        public DateTime UpdatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
         [StringLength(50)]
-        public string UpdatedBy { get; set; } 
+        public string? UpdatedBy { get; set; } 
         public string CreatedBy { get; set; } 
 
 

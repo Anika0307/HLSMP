@@ -146,7 +146,7 @@ namespace HLSMP.Controllers
 
         //====================== UpdateTatimaStatus=======================//
         [HttpPost]
-        public IActionResult UpdateTatimaStatus(int disCode, int tehCode, int villCode, string remarks, string action)
+        public IActionResult UpdateTatimaStatus(string disCode, string tehCode, string villCode, string remarks, string action)
         {
             string Action = action.Equals("accept", StringComparison.OrdinalIgnoreCase) ? "Accepted" : "Rejected";
             var data = new VillageTatima

@@ -79,59 +79,104 @@ namespace HLSMP.Controllers
                 model.VillageList = GetVillages(model.Tehsil);
                 model.VillageStageList = GetVillStageList();
 
+                if (model.VillageStage == "3" || model.VillageStage == "4")
+                {
+                    // Remove validation errors for these fields
+                    ModelState.Remove(nameof(model.IsWorkDone));
+                    ModelState.Remove(nameof(model.WorkDate));
+                    ModelState.Remove(nameof(model.UploadedFile));
+                    ModelState.Remove(nameof(model.TotalTatima));
+                    ModelState.Remove(nameof(model.Completed));
+                    ModelState.Remove(nameof(model.Pending));
+                }
                 if (!ModelState.IsValid)
                 {
                     return View(model);
                 }
-
-                string rootPath = Path.Combine(_env.WebRootPath, "Documents", model.DIS_CODE, model.Tehsil, model.Village);
-                if (!Directory.Exists(rootPath))
-                    Directory.CreateDirectory(rootPath);
-
-                string savedFileName = null;
-                if (model.UploadedFile != null && model.UploadedFile.Length > 0)
+                if (model.VillageStage == "1" || model.VillageStage == "2")
                 {
-                    savedFileName = Path.GetFileName(model.UploadedFile.FileName);
-                    string fullPath = Path.Combine(rootPath, savedFileName);
+                    string rootPath = Path.Combine(_env.WebRootPath, "Documents", model.DIS_CODE, model.Tehsil, model.Village);
+                    if (!Directory.Exists(rootPath))
+                        Directory.CreateDirectory(rootPath);
 
-                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    string savedFileName = null;
+                    if (model.UploadedFile != null && model.UploadedFile.Length > 0)
                     {
-                        await model.UploadedFile.CopyToAsync(stream);
+                        savedFileName = Path.GetFileName(model.UploadedFile.FileName);
+                        string fullPath = Path.Combine(rootPath, savedFileName);
+
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await model.UploadedFile.CopyToAsync(stream);
+                        }
+                    }
+
+                    // Save to database
+                    var data = new VillageTatima
+                    {
+                        Dist_Code = Convert.ToString(model.DIS_CODE),
+                        Teh_Code = Convert.ToString(model.Tehsil),
+                        VillageCode = Convert.ToString(model.Village),
+                        TotalTatima = model.TotalTatima ?? 0,
+                        Completed = model.Completed ?? 0,
+                        Pending = model.Pending ?? 0,
+                        IsWorkDone = model.IsWorkDone == true ? "Y" : "N",
+                        UploadedDocument = savedFileName,
+                        WorkDate = Convert.ToDateTime(model.WorkDate),
+                        VillageStageCode = Convert.ToInt32(model.VillageStage),
+                        IPAddress = IPAddress,
+                        CreatedBy = userName
+                    };
+                    string statusCode = IsTatimaDetailExist(data);
+                    if (statusCode == "1" || statusCode == "4" || statusCode == "7")
+                    {
+                        UpdateTatimaDetail(data);
+                    }
+                    else if (string.IsNullOrEmpty(statusCode))
+                    {
+                        InsertTatimaDetails(data);
+                    }
+                    else
+                    {
+                        TempData["AlertMessage"] = "Data already exists.";
+                        return RedirectToAction("Index");
+
                     }
                 }
+                else 
+                {
+                    var data = new VillageTatima
+                    {
+                        Dist_Code = Convert.ToString(model.DIS_CODE),
+                        Teh_Code = Convert.ToString(model.Tehsil),
+                        VillageCode = Convert.ToString(model.Village),
+                        TotalTatima = model.TotalTatima ?? 0,
+                        Completed = model.Completed ?? 0,
+                        Pending = model.Pending ?? 0,
+                        IsWorkDone = "",
+                        UploadedDocument = "",
+                        WorkDate = Convert.ToDateTime(model.WorkDate),
+                        VillageStageCode = Convert.ToInt32(model.VillageStage),
+                        IPAddress = IPAddress,
+                        CreatedBy = userName
+                    };
+                    string statusCode = IsTatimaDetailExist(data);
+                    if (statusCode == "1" || statusCode == "4" || statusCode == "7")
+                    {
+                        UpdateTatimaDetail(data);
+                    }
+                    else if (string.IsNullOrEmpty(statusCode))
+                    {
+                        InsertTatimaDetails(data);
+                    }
+                    else
+                    {
+                        TempData["AlertMessage"] = "Data already exists.";
+                        return RedirectToAction("Index");
+                    }
 
-                // Save to database
-                var data = new VillageTatima
-                {
-                    Dist_Code = int.Parse(model.DIS_CODE),
-                    Teh_Code = int.Parse(model.Tehsil),
-                    VillageCode = int.Parse(model.Village),
-                    TotalTatima = model.TotalTatima ?? 0,
-                    Completed = model.Completed ?? 0,
-                    Pending = model.Pending ?? 0,
-                    IsWorkDone = model.IsWorkDone == true ? "Y" : "N",
-                    UploadedDocument = savedFileName,
-                    WorkDate = Convert.ToDateTime(model.WorkDate),
-                    VillageStageCode = Convert.ToInt32(model.VillageStage),
-                    IPAddress = IPAddress,
-                    CreatedBy = userName
-                };
-                string statusCode = IsTatimaDetailExist(data);
-                if (statusCode == "1" || statusCode == "4" || statusCode == "7")
-                {
-                    UpdateTatimaDetail(data);
                 }
-                else if(string.IsNullOrEmpty(statusCode))
-                {
-                    InsertTatimaDetails(data);
-                }
-                else
-                {
-                    TempData["AlertMessage"] = "Data already exists.";
                     return RedirectToAction("Index");
-                    
-                }
-                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
@@ -187,7 +232,8 @@ namespace HLSMP.Controllers
                 cmd.Parameters.AddWithValue("@Completed", data.Completed);
                 cmd.Parameters.AddWithValue("@Pending", data.Pending);
                 cmd.Parameters.AddWithValue("@IsWorkDone", data.IsWorkDone);
-                cmd.Parameters.AddWithValue("@WorkDate", data.WorkDate);
+                cmd.Parameters.AddWithValue("@WorkDate",
+                    data.WorkDate == DateTime.MinValue ? (object)DBNull.Value : data.WorkDate);
                 cmd.Parameters.AddWithValue("@VillageStageCode", data.VillageStageCode);
                 cmd.Parameters.AddWithValue("@IPAddress", data.IPAddress);
                 cmd.Parameters.AddWithValue("@CreatedBy", data.CreatedBy);
