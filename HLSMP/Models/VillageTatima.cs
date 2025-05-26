@@ -30,12 +30,14 @@ namespace HLSMP.Models
         public DateTime? WorkDate { get; set; }
         public int VillageStageCode { get; set; }
         [StringLength(100)]
-        public string IPAddress { get; set; }
-        public DateTime CreatedDate { get; set; }
+
+        public string IPAddress { get; set; } 
+        public DateTime CreatedDate { get; set; } 
         public DateTime? UpdatedDate { get; set; }
         [StringLength(50)]
-        public string? UpdatedBy { get; set; }
-        public string CreatedBy { get; set; }
+        public string? UpdatedBy { get; set; } 
+        public string CreatedBy { get; set; } 
+
 
 
     }
