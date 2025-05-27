@@ -1,5 +1,4 @@
 ﻿@model HLSMP.ViewModel.DashboardViewModel
-
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -9,21 +8,26 @@
     table tr td {
         font-weight: bold;
     }
+
+    #backButton1, #backButton2 {
+        display: none;
+        margin-bottom: 15px;
+    }
 </style>
 
-<h2 class="dashboard_head pb-2 mt-5">TATIMA DETAILS</h2>
+<h2 class="dashboard_head pb-2 mt-5" id="districtHeader">TATIMA DETAILS (District Wise)</h2>
 
-<div class="table_scroll">
-    <table class="table table-bordered table-hover table-striped text-center align-middle mb-4" style="font-size: 1.3rem">
+<div class="table_scroll" id="districtSection">
+    <table id="districtTable" class="table table-bordered table-hover table-striped text-center align-middle mb-4" style="font-size: 1.3rem">
         <thead>
             <tr>
                 <th>Sr.No.</th>
                 <th>District</th>
-                <th>Total Tatimas</th>
-                <th>Total Tatimas Pending</th>
-                <th>Total Tatimas Completed</th>
-                <th>Pending At SOI</th>
-                <th>Pending At Department</th>
+                <th>Total tatimas</th>
+                <th>Total pending tatimas</th>
+                <th>Total completed tatimas</th>
+                <th>Tatimas pending for SOI approval</th>
+                <th>Tatimas pending for Department approval</th>
             </tr>
         </thead>
         <tbody>
@@ -34,7 +38,11 @@
             {
                 <tr>
                     <td>@rowNumber</td>
-                    <td>@item.DistrictName</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="getTehsilData('@item.DistrictCode', '@item.DistrictName')">
+                            @item.DistrictName
+                        </a>
+                    </td>
                     <td>@item.TotalTatima</td>
                     <td>@item.PendingTatima</td>
                     <td>@item.CompletedTatima</td>
@@ -44,16 +52,166 @@
                 rowNumber++;
             }
         </tbody>
-
     </table>
 </div>
-@section Scripts {
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-<script>
-    $(document).ready(function () {
-        $('.table').DataTable();
-    });
-</script>
+<h2 class="dashboard_head pb-2 mt-5" id="tehsilHeader" style="display:none;">
+    TEHSIL DETAILS - <span id="selectedDistrictName"></span>
+</h2>
+<button id="backButton1" class="btn btn-primary" onclick="showDistrictTable()">Back to Districts</button>
+<div class="table_scroll" id="tehsilSection" style="display:none;">
+    <table id="tehsilTable" class="table table-bordered table-hover table-striped text-center align-middle mb-4" style="font-size: 1.3rem;">
+        <thead>
+            <tr>
+                <th>Sr.No.</th>
+                <th>Tehsil</th>
+                <th>Total tatimas</th>
+                <th>Total pending tatimas</th>
+                <th>Total completed tatimas</th>
+                <th>Tatimas pending for SOI approval</th>
+                <th>Tatimas pending for Department approval</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<h2 class="dashboard_head pb-2 mt-5" id="villageHeader" style="display:none;">
+    VILLAGE DETAILS - <span id="selectedTehsilName"></span>
+</h2>
+<button id="backButton2" class="btn btn-primary" onclick="showTehsilTable()">Back to Tehsils</button>
+<div class="table_scroll" id="villageSection" style="display:none;">
+    <table id="villageTable" class="display">
+        <thead>
+            <tr>
+                <th>Sr.No.</th>
+                <th>District</th>
+                <th>Tehsil</th>
+                <th>Village</th>
+                <th>Total tatimas</th>
+                <th>Total pending tatimas</th>
+                <th>Total completed tatimas</th>
+                <th>Tatimas pending for SOI approval</th>
+                <th>Tatimas pending for Department approval</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#districtTable').DataTable();
+        });
+
+        function getTehsilData(districtCode, districtName) {
+            $('#selectedDistrictName').text(districtName);
+            $('#districtSection, #districtHeader').hide();
+            $('#tehsilHeader, #tehsilSection, #backButton1').show();
+
+            $.ajax({
+                url: '/Dashboard/GetTehsilWiseData',
+                type: 'GET',
+                data: { districtCode: districtCode },
+                success: function (data) {
+                    console.log("Returned village data:", data);
+                    const tbody = $('#tehsilTable tbody');
+                    if ($.fn.DataTable.isDataTable('#tehsilTable')) {
+                        $('#tehsilTable').DataTable().destroy();
+                    }
+                    tbody.empty();
+                    if (data && data.length > 0) {
+                        let srNo = 1;
+                        data.forEach(item => {
+                            tbody.append(`
+                                <tr>
+                                    <td>${srNo++}</td>
+                                    <td><a href="javascript:void(0);" onclick="getVillageData('${item.tehsilCode}', '${item.tehsilName}', '${item.districtCode}')">${item.tehsilName}</a></td>
+                                    <td>${item.totalTatima}</td>
+                                    <td>${item.pendingTatima}</td>
+                                    <td>${item.completedTatima}</td>
+                                    <td>${item.pendingAtSOI}</td>
+                                    <td>${item.pendingAtDepartment}</td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        tbody.append('<tr><td colspan="7">No data available</td></tr>');
+                    }
+                    $('#tehsilTable').DataTable();
+                },
+                error: function () {
+                    alert('Error fetching tehsil-wise data.');
+                }
+            });
+        }
+
+                      function getVillageData(tehsilCode, tehsilName, districtCode) {
+              $('#selectedTehsilName').text(tehsilName);
+        $('#tehsilSection, #tehsilHeader').hide();
+        $('#villageSection, #villageHeader, #backButton2').show();
+        $('#backButton1').hide();
+
+            $.ajax({
+                url: '/Dashboard/GetVillageWiseData',
+                type: 'GET',
+                data: { tehsilCode: tehsilCode, districtCode: districtCode },
+                success: function (data) {
+                    const table = $('#villageTable');
+
+                    if ($.fn.DataTable.isDataTable(table)) {
+                        table.DataTable().clear().destroy();
+                    }
+
+                    const tbody = table.find('tbody');
+                    tbody.empty();
+
+                    if (data && data.length > 0) {
+                        let srNo = 1;
+                        data.forEach(item => {
+                            const row = `
+                                <tr>
+                                    <td>${srNo++}</td>
+                                    <td>${item.districtName || ''}</td>
+                                    <td>${item.tehsilName || ''}</td>
+                                    <td>${item.villageName || ''}</td>
+                                    <td>${item.totalTatima ?? 0}</td>
+                                    <td>${item.pendingTatima ?? 0}</td>
+                                    <td>${item.completedTatima ?? 0}</td>
+                                    <td>${item.pendingAtSOI ?? 0}</td>
+                                    <td>${item.pendingAtDepartment ?? 0}</td>
+                                </tr>
+                            `;
+                            tbody.append(row);
+                        });
+                    } else {
+                        tbody.append('<tr><td colspan="9" class="text-center">No data available</td></tr>');
+                    }
+
+                    table.DataTable(); // re-initialize
+                },
+                error: function () {
+                    alert('Error fetching village-wise data.');
+                }
+            });
+        }
+
+
+
+        function showDistrictTable() {
+            $('#districtSection, #districtHeader').show();
+            $('#tehsilSection, #tehsilHeader, #backButton1').hide();
+            $('#villageSection, #villageHeader, #backButton2').hide();
+        }
+
+        function showTehsilTable() {
+            $('#tehsilSection, #tehsilHeader, #backButton1').show();
+            $('#villageSection, #villageHeader, #backButton2').hide();
+            $('#districtSection, #districtHeader').hide();
+        }
+    </script>
 }

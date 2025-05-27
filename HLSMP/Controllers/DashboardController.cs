@@ -67,38 +67,92 @@ namespace HLSMP.Controllers
         }
 
         //------------------Tehsil Wise Data------------------//
+
         [HttpGet]
-        private DashboardViewModel GetTehsilWiseData(string districtCode)
+        public JsonResult GetTehsilWiseData(string districtCode)
         {
-            DashboardViewModel model = new DashboardViewModel();
+            List<DashboardViewModel> tehsils = new();
             try
             {
                 using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-                using SqlCommand cmd = new(@"sp_GetDashboardDataTehWise", conn)
+                using SqlCommand cmd = new("sp_GetDashboardDataTehWise", conn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
+                cmd.Parameters.AddWithValue("@Dist_Code", districtCode);
 
                 conn.Open();
                 using SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    model.DistrictName = reader["DIS_NAME"]?.ToString();
-                    model.DistrictCode = reader["DIS_CODE"]?.ToString();
-                    model.TotalTatima = Convert.ToInt32(reader["TotalTatima"]);
-                    model.PendingTatima = Convert.ToInt32(reader["PendingTatima"]);
-                    model.CompletedTatima = Convert.ToInt32(reader["CompletedTatima"]);
-                    model.PendingAtSOI = Convert.ToInt32(reader["PendingAtSOI"]);
-                    model.PendingAtDepartment = Convert.ToInt32(reader["PendingAtDepartment"]);
-
+                    tehsils.Add(new DashboardViewModel
+                    {
+                        TehsilName = reader["TEH_NAME"]?.ToString(),
+                        TehsilCode = reader["Teh_Code"]?.ToString(),
+                        DistrictCode = reader["DIS_CODE"]?.ToString(),
+                        DistrictName = reader["DIS_NAME"]?.ToString(),
+                        TotalTatima = Convert.ToInt32(reader["TotalTatima"]),
+                        PendingTatima = Convert.ToInt32(reader["Pending"]),
+                        CompletedTatima = Convert.ToInt32(reader["Completed"]),
+                        PendingAtSOI = Convert.ToInt32(reader["PendingAtSOI"]),
+                        PendingAtDepartment = Convert.ToInt32(reader["PendingAtDepartment"])
+                    });
                 }
-                return model;
+            }
+            catch (Exception)
+            {
+                // Optionally log error
+            }
+
+            return Json(tehsils);
+        }
+        //------------------Village Wise Data------------------//
+        [HttpGet]
+        public JsonResult GetVillageWiseData(string tehsilCode, string districtCode)
+        {
+            List<DashboardViewModel> villages = new();
+            try
+            {
+                using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+                using SqlCommand cmd = new("sp_HLSMPGetDashboardDataVlgWise", conn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.AddWithValue("@Dist_Code", districtCode);
+                cmd.Parameters.AddWithValue("@Teh_Code", tehsilCode);
+
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    villages.Add(new DashboardViewModel
+                    {
+                        DistrictName = reader["DIS_NAME"]?.ToString(),
+                        DistrictCode = reader["DIS_CODE"]?.ToString(),
+                        TehsilName = reader["TEH_NAME"]?.ToString(),
+                        TehsilCode = reader["TEH_CODE"]?.ToString(),
+                        VillageName = reader["VillageName"]?.ToString(), // <-- check actual name
+                        VillageCode = reader["VillageCode"]?.ToString(), // <-- check actual name
+                        TotalTatima = reader["TotalTatima"] != DBNull.Value ? Convert.ToInt32(reader["TotalTatima"]) : 0,
+                        PendingTatima = reader["Pending"] != DBNull.Value ? Convert.ToInt32(reader["Pending"]) : 0,
+                        CompletedTatima = reader["Completed"] != DBNull.Value ? Convert.ToInt32(reader["Completed"]) : 0,
+                        PendingAtSOI = reader["PendingAtSOI"] != DBNull.Value ? Convert.ToInt32(reader["PendingAtSOI"]) : 0,
+                        PendingAtDepartment = reader["PendingAtDepartment"] != DBNull.Value ? Convert.ToInt32(reader["PendingAtDepartment"]) : 0
+                    });
+                }
             }
             catch (Exception ex)
             {
-                return model;
+
+                Console.WriteLine("Error in GetVillageWiseData: " + ex.Message);
+                return Json(new { success = false, message = "Error occurred" });
             }
+
+            return Json(villages);
         }
+
     }
 }
