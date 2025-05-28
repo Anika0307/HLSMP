@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text.Json;
 using HLSMP.CustomAttribute;
+using HLSMP.Services;
 
 namespace HLSMP.Controllers
 {
@@ -16,18 +17,20 @@ namespace HLSMP.Controllers
     {
         private readonly IWebHostEnvironment _env;
         private readonly IConfiguration _configuration;
+        private readonly ILocationService _locationService;
 
-        public RevDepartmentController(IConfiguration configuration, IWebHostEnvironment env)
+        public RevDepartmentController(IConfiguration configuration, IWebHostEnvironment env,ILocationService locationService)
         {
             _configuration = configuration;
             _env = env;
+            _locationService = locationService;
         }
 
         public IActionResult RevDepartmentView()
         {
             var model = new SOIViewModel
             {
-                DistrictList = GetDistricts(),
+                DistrictList = _locationService.GetDistricts(),
                 TehsilList = new List<SelectListItem>(),
                 Villages = new List<SOIVillages>()
             };
@@ -41,57 +44,65 @@ namespace HLSMP.Controllers
         [HttpPost]
         public IActionResult RevDepartmentView(SOIViewModel model)
         {
-            model.DistrictList = GetDistricts();
-            model.TehsilList = GetTehsils(model.DIS_CODE);
+            try
+            {
+                model.DistrictList = _locationService.GetDistricts();
+                model.TehsilList = _locationService.GetTehsils(model.DIS_CODE);
 
             model.Villages = GetPendingTatima(model.DIS_CODE, model.TEH_CODE);
             return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["AlertMessage"] = "Exception: Select District/Tehsil";
+                return RedirectToAction("Index", model);
+            }
         }
 
         [HttpPost]
         public JsonResult GetTehsilsByDistrict(string DIS_CODE)
         {
-            var tehsils = GetTehsils(DIS_CODE);
+            var tehsils = _locationService.GetTehsils(DIS_CODE);
             return Json(tehsils);
         }
 
         //=====================Bind methods for District and Village======================//
-        private List<SelectListItem> GetDistricts()
-        {
-            var districts = new List<SelectListItem>();
-            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new("select DIS_CODE, DIS_NAME as District from DIS_MAS", conn);
-            conn.Open();
-            SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                districts.Add(new SelectListItem
-                {
-                    Value = reader["DIS_CODE"].ToString(),
-                    Text = reader["District"].ToString()
-                });
-            }
-            return districts;
-        }
-        private List<SelectListItem> GetTehsils(string DIS_CODE)
-        {
-            var tehsils = new List<SelectListItem>();
-            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new("SELECT TEH_NAME as Tehsil,TEH_CODE FROM TEH_MAS_LGD_UPDATED WHERE DIS_CODE =@DIS_CODE", conn);
-            cmd.Parameters.AddWithValue("@DIS_CODE", DIS_CODE);
-            conn.Open();
-            SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-                while (reader.Read())
-                {
-                    tehsils.Add(new SelectListItem
-                    {
-                        Value = reader["TEH_CODE"].ToString(), // This will be the posted value
-                        Text = reader["Tehsil"].ToString()   // This will be the visible text
-                    });
-                }
-            return tehsils;
-        }
+        //private List<SelectListItem> GetDistricts()
+        //{
+        //    var districts = new List<SelectListItem>();
+        //    using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+        //    using SqlCommand cmd = new("select DIS_CODE, DIS_NAME as District from DIS_MAS", conn);
+        //    conn.Open();
+        //    SqlDataReader reader = cmd.ExecuteReader();
+        //    while (reader.Read())
+        //    {
+        //        districts.Add(new SelectListItem
+        //        {
+        //            Value = reader["DIS_CODE"].ToString(),
+        //            Text = reader["District"].ToString()
+        //        });
+        //    }
+        //    return districts;
+        //}
+        //private List<SelectListItem> GetTehsils(string DIS_CODE)
+        //{
+        //    var tehsils = new List<SelectListItem>();
+        //    using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+        //    using SqlCommand cmd = new("SELECT TEH_NAME as Tehsil,TEH_CODE FROM TEH_MAS_LGD_UPDATED WHERE DIS_CODE =@DIS_CODE", conn);
+        //    cmd.Parameters.AddWithValue("@DIS_CODE", DIS_CODE);
+        //    conn.Open();
+        //    SqlDataReader reader = cmd.ExecuteReader();
+        //    while (reader.Read())
+        //        while (reader.Read())
+        //        {
+        //            tehsils.Add(new SelectListItem
+        //            {
+        //                Value = reader["TEH_CODE"].ToString(), // This will be the posted value
+        //                Text = reader["Tehsil"].ToString()   // This will be the visible text
+        //            });
+        //        }
+        //    return tehsils;
+        //}
 
 
         //===========================Get Pending Tatima list=========================//

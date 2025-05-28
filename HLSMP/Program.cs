@@ -1,4 +1,5 @@
 using HLSMP.Data;
+using HLSMP.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>
 builder.Services.AddSession();
 builder.Services.AddDistributedMemoryCache(); 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ILocationService, LocationService>();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
