@@ -218,24 +218,26 @@
                             <td>${item.reason || ''}</td>
                         </tr>
                     `;
-                    tbody.append(row);
-                });
-            } else {
-                tbody.append('<tr><td colspan="9" class="text-center">No data available</td></tr>');
-            }
+					tbody.append(row);
+				});
+				}
+			// } else {
 
-              table.DataTable({
-                   scrollY: "500px",
-                   scrollCollapse: true,
-                   paging: true,
-                   pageLength: 50
-                });
-        },
-                error: function () {
-                    alert('Error fetching village-wise data.');
-                }
-            });
-        }
+			//     tbody.append('<tr><td colspan="9" class="text-center">No data available</td></tr>');
+			// }
+
+			  table.DataTable({
+				   scrollY: "500px",
+				   scrollCollapse: true,
+				   paging: true,
+				   pageLength: 50
+				});
+		},
+				error: function () {
+					alert('Error fetching village-wise data.');
+				}
+			});
+		}
 
 
         function showDistrictTable() {
