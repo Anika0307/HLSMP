@@ -1,6 +1,7 @@
 ﻿using HLSMP.CustomAttribute;
 using HLSMP.Data;
 using HLSMP.Models;
+using HLSMP.Services;
 using HLSMP.ViewModel;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -24,11 +25,15 @@ namespace HLSMP.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _env;
+        private readonly ILocationService _locationService;
 
-        public GISLabController(IConfiguration configuration, IWebHostEnvironment env)
+        public GISLabController(IConfiguration configuration, IWebHostEnvironment env, ILocationService locationService)
         {
             _configuration = configuration;
             _env = env;
+            _locationService = locationService;
+
+
         }
         public IActionResult Index()
         { 
@@ -47,7 +52,8 @@ namespace HLSMP.Controllers
 
             var model = new GISViewModel
             {
-                DistrictList = GetDistricts(DistId)
+                DistrictList = _locationService.GetDistricts() // Assuming service handles filtering
+
             };
 
             return View(model);
@@ -74,9 +80,9 @@ namespace HLSMP.Controllers
             }
             try
             {
-                model.DistrictList = GetDistricts(DistId);
-                model.TehsilList = GetTehsils(model.DIS_CODE);
-                model.VillageList = GetVillages(model.Tehsil);
+                model.DistrictList = _locationService.GetDistricts();
+                model.TehsilList = _locationService.GetTehsils(model.DIS_CODE);
+                model.VillageList = _locationService.GetVillages(model.Tehsil);
                 model.VillageStageList = GetVillStageList();
 
                 if (model.VillageStage == "3" || model.VillageStage == "4")
@@ -301,14 +307,14 @@ namespace HLSMP.Controllers
         [HttpPost]
         public JsonResult GetTehsilsByDistrict(string DIS_CODE)
         {
-            var tehsils = GetTehsils(DIS_CODE);
+            var tehsils = _locationService.GetTehsils(DIS_CODE);
             return Json(tehsils);
         }
 
         [HttpPost]
         public JsonResult GetVillagesByTehsil(string TehCode)
         {
-            var Village = GetVillages(TehCode);
+            var Village = _locationService.GetVillages(TehCode);
             return Json(Village);
         }
         //<---------------------------/Tehsil,Village Bind Methods---------------------->
@@ -341,63 +347,63 @@ namespace HLSMP.Controllers
         //<---------------------------/Reason Bind Methods ---------------------->
        
         //<---------------------------DropDown Bind Methods---------------------->
-        private List<SelectListItem> GetDistricts( int DistId)
-        {
-            var districts = new List<SelectListItem>();
-            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new("select DIS_CODE, DIS_NAME as District from DIS_MAS where DIS_CODE= @DIS_CODE", conn);
-            cmd.Parameters.AddWithValue("@DIS_CODE", DistId);
-            conn.Open();
-            SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                districts.Add(new SelectListItem
-                {
-                    Value = reader["DIS_CODE"].ToString(),
-                    Text = reader["District"].ToString()
-                });
-            }
-            return districts;
-        }
+        //private List<SelectListItem> GetDistricts( int DistId)
+        //{
+        //    var districts = new List<SelectListItem>();
+        //    using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+        //    using SqlCommand cmd = new("select DIS_CODE, DIS_NAME as District from DIS_MAS where DIS_CODE= @DIS_CODE", conn);
+        //    cmd.Parameters.AddWithValue("@DIS_CODE", DistId);
+        //    conn.Open();
+        //    SqlDataReader reader = cmd.ExecuteReader();
+        //    while (reader.Read())
+        //    {
+        //        districts.Add(new SelectListItem
+        //        {
+        //            Value = reader["DIS_CODE"].ToString(),
+        //            Text = reader["District"].ToString()
+        //        });
+        //    }
+        //    return districts;
+        //}
 
-        private List<SelectListItem> GetTehsils(string DIS_CODE)
-        {
-            var tehsils = new List<SelectListItem>();
-            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new("SELECT TEH_CODE, TEH_NAME FROM TEH_MAS_LGD_UPDATED WHERE DIS_CODE = @DIS_CODE", conn);
-            cmd.Parameters.AddWithValue("@DIS_CODE", DIS_CODE);
-            conn.Open();
-            SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                tehsils.Add(new SelectListItem
-                {
-                    Value = reader["TEH_CODE"].ToString(),
-                    Text = reader["TEH_NAME"].ToString()
-                });
-            }
-            return tehsils;
-        }
+        //private List<SelectListItem> GetTehsils(string DIS_CODE)
+        //{
+        //    var tehsils = new List<SelectListItem>();
+        //    using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+        //    using SqlCommand cmd = new("SELECT TEH_CODE, TEH_NAME FROM TEH_MAS_LGD_UPDATED WHERE DIS_CODE = @DIS_CODE", conn);
+        //    cmd.Parameters.AddWithValue("@DIS_CODE", DIS_CODE);
+        //    conn.Open();
+        //    SqlDataReader reader = cmd.ExecuteReader();
+        //    while (reader.Read())
+        //    {
+        //        tehsils.Add(new SelectListItem
+        //        {
+        //            Value = reader["TEH_CODE"].ToString(),
+        //            Text = reader["TEH_NAME"].ToString()
+        //        });
+        //    }
+        //    return tehsils;
+        //}
 
-        private List<SelectListItem> GetVillages(string tehcode)
-        {
-            var Village = new List<SelectListItem>();
-            using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-            using SqlCommand cmd = new("SELECT VIL_NAME as Village,VIL_CODE FROM VIL_MAS WHERE TEH_CODE =@tehcode", conn);
-            cmd.Parameters.AddWithValue("@tehcode", tehcode);
-            conn.Open();
-            SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                Village.Add(new SelectListItem
-                {
-                    Value = reader["VIL_CODE"].ToString(),
-                    Text = reader["Village"].ToString()
-                });
+        //private List<SelectListItem> GetVillages(string tehcode)
+        //{
+        //    var Village = new List<SelectListItem>();
+        //    using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
+        //    using SqlCommand cmd = new("SELECT VIL_NAME as Village,VIL_CODE FROM VIL_MAS WHERE TEH_CODE =@tehcode", conn);
+        //    cmd.Parameters.AddWithValue("@tehcode", tehcode);
+        //    conn.Open();
+        //    SqlDataReader reader = cmd.ExecuteReader();
+        //    while (reader.Read())
+        //    {
+        //        Village.Add(new SelectListItem
+        //        {
+        //            Value = reader["VIL_CODE"].ToString(),
+        //            Text = reader["Village"].ToString()
+        //        });
               
-            }
-            return Village;
-        }
+        //    }
+        //    return Village;
+        //}
         //<---------------------------/DropDown Bind Methods------------------->
 
     }
