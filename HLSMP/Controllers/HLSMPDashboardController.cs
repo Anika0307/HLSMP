@@ -12,16 +12,16 @@ using System.Data;
 namespace HLSMP.Controllers
 {
 
-    public class DashboardController : Controller
+    public class HLSMPDashboardController : Controller
     {
         private readonly IConfiguration _configuration;
 
-        public DashboardController(IConfiguration configuration)
+        public HLSMPDashboardController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        public IActionResult Index()
+        public IActionResult HLSMPDashboardView()
         {
             DashboardViewModel model = GetDistrictWiseData();
             return View(model);
@@ -34,7 +34,7 @@ namespace HLSMP.Controllers
             try
             {
                 using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-                using SqlCommand cmd = new(@"sp_GetDashboardDataDistWise", conn)
+                using SqlCommand cmd = new(@"sp_HLSMPGetDashboardDataDistWise", conn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
@@ -48,11 +48,11 @@ namespace HLSMP.Controllers
                     {
                         DistrictName = reader["DIS_NAME"]?.ToString(),
                         DistrictCode = reader["DIS_CODE"]?.ToString(),
-                        TotalTatima = Convert.ToInt32(reader["TotalTatima"]),
-                        PendingTatima = Convert.ToInt32(reader["PendingTatima"]),
-                        CompletedTatima = Convert.ToInt32(reader["CompletedTatima"]),
-                        PendingAtSOI = Convert.ToInt32(reader["PendingAtSOI"]),
-                        PendingAtDepartment = Convert.ToInt32(reader["PendingAtDepartment"])
+                        TotalTatima = reader["TotalTatima"] != DBNull.Value ?Convert.ToString(reader["TotalTatima"]) : "0",
+                        PendingTatima = reader["PendingTatima"] != DBNull.Value ? Convert.ToString(reader["PendingTatima"]) : "0",
+                        CompletedTatima = reader["CompletedTatima"] != DBNull.Value ? Convert.ToString( reader["CompletedTatima"]) : "0",
+                        PendingAtSOI = reader["PendingAtSOI"] != DBNull.Value ? Convert.ToString( reader["PendingAtSOI"]) : "0",
+                        PendingAtDepartment = reader["PendingAtDepartment"] != DBNull.Value ? Convert.ToString(reader["PendingAtDepartment"]) : "0"
                     };
 
                     model.Districts.Add(district);
@@ -71,11 +71,12 @@ namespace HLSMP.Controllers
         [HttpGet]
         public JsonResult GetTehsilWiseData(string districtCode)
         {
+            ViewData["DisCode"] = Convert.ToString(districtCode);
             List<DashboardViewModel> tehsils = new();
             try
             {
                 using SqlConnection conn = new(_configuration.GetConnectionString("DefaultConnection"));
-                using SqlCommand cmd = new("sp_GetDashboardDataTehWise", conn)
+                using SqlCommand cmd = new("sp_HLSMPGetDashboardDataTehWise", conn)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
@@ -92,11 +93,12 @@ namespace HLSMP.Controllers
                         TehsilCode = reader["Teh_Code"]?.ToString(),
                         DistrictCode = reader["DIS_CODE"]?.ToString(),
                         DistrictName = reader["DIS_NAME"]?.ToString(),
-                        TotalTatima = Convert.ToInt32(reader["TotalTatima"]),
-                        PendingTatima = Convert.ToInt32(reader["Pending"]),
-                        CompletedTatima = Convert.ToInt32(reader["Completed"]),
-                        PendingAtSOI = Convert.ToInt32(reader["PendingAtSOI"]),
-                        PendingAtDepartment = Convert.ToInt32(reader["PendingAtDepartment"])
+                        TotalTatima = reader["TotalTatima"] != DBNull.Value ? Convert.ToString(reader["TotalTatima"]) : "0",
+                        PendingTatima = reader["Pending"] != DBNull.Value ? Convert.ToString(reader["Pending"]) : "0",
+                        CompletedTatima = reader["Completed"] != DBNull.Value ? Convert.ToString(reader["Completed"]) : "0",
+                        PendingAtSOI = reader["PendingAtSOI"] != DBNull.Value ? Convert.ToString(reader["PendingAtSOI"]) : "0",
+                        PendingAtDepartment = reader["PendingAtDepartment"] != DBNull.Value ? Convert.ToString(reader["PendingAtDepartment"]) : "0"
+
                     });
                 }
             }
@@ -130,29 +132,28 @@ namespace HLSMP.Controllers
                 {
                     villages.Add(new DashboardViewModel
                     {
-                        DistrictName = reader["DIS_NAME"]?.ToString(),
-                        DistrictCode = reader["DIS_CODE"]?.ToString(),
-                        TehsilName = reader["TEH_NAME"]?.ToString(),
-                        TehsilCode = reader["TEH_CODE"]?.ToString(),
-                        VillageName = reader["VillageName"]?.ToString(), // <-- check actual name
-                        VillageCode = reader["VillageCode"]?.ToString(), // <-- check actual name
-                        TotalTatima = reader["TotalTatima"] != DBNull.Value ? Convert.ToInt32(reader["TotalTatima"]) : 0,
-                        PendingTatima = reader["Pending"] != DBNull.Value ? Convert.ToInt32(reader["Pending"]) : 0,
-                        CompletedTatima = reader["Completed"] != DBNull.Value ? Convert.ToInt32(reader["Completed"]) : 0,
-                        PendingAtSOI = reader["PendingAtSOI"] != DBNull.Value ? Convert.ToInt32(reader["PendingAtSOI"]) : 0,
-                        PendingAtDepartment = reader["PendingAtDepartment"] != DBNull.Value ? Convert.ToInt32(reader["PendingAtDepartment"]) : 0
+                        DistrictName = reader["DIS_NAME"] != DBNull.Value ? Convert.ToString(reader["DIS_NAME"]) : "0",
+                        DistrictCode = reader["DIS_CODE"] != DBNull.Value ? Convert.ToString(reader["DIS_CODE"]) : "",
+                        TehsilName = reader["TEH_NAME"] != DBNull.Value ? Convert.ToString(reader["TEH_NAME"]) : "",
+                        TehsilCode = reader["TEH_CODE"] != DBNull.Value ? Convert.ToString(reader["TEH_CODE"]) : "0",
+                        VillageName = reader["VillageName"] != DBNull.Value ? Convert.ToString(reader["VillageName"]) : "",
+                        VillageCode = reader["VillageCode"] != DBNull.Value ? Convert.ToString(reader["VillageCode"]) : "0",
+                        TotalTatima = reader["TotalTatima"] != DBNull.Value ? Convert.ToString(reader["TotalTatima"]) : "0",
+                        PendingTatima = reader["Pending"] != DBNull.Value ? Convert.ToString(reader["Pending"]) : "0",
+                        CompletedTatima = reader["Completed"] != DBNull.Value ? Convert.ToString(reader["Completed"]) : "0",
+                        Status = reader["Status"] != DBNull.Value ? Convert.ToString(reader["Status"]) : "0",
+                        Reason = reader["Reason"] != DBNull.Value ? Convert.ToString(reader["Reason"]) : "0"
+                      
                     });
                 }
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine("Error in GetVillageWiseData: " + ex.Message);
                 return Json(new { success = false, message = "Error occurred" });
             }
 
-            return Json(villages);
+            return Json(new { data = villages });
         }
-
     }
 }

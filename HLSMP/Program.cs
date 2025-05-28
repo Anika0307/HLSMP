@@ -29,6 +29,6 @@ app.UseAuthorization();
 app.UseSession();
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+    pattern: "{controller=HLSMPDashboard}/{action=HLSMPDashboardView}/{id?}");
 
 app.Run();
